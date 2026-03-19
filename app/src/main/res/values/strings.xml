@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">UITHub</string>
+    <string name="home">Home</string>
+    <string name="tkb">TKB</string>
+    <string name="thong_bao">Thông báo</string>
 </resources>
