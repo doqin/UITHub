@@ -36,8 +36,11 @@ public class MainActivity extends AppCompatActivity {
         // navigation
         bottomNav.setOnItemSelectedListener(item -> {
 
-            if (item.getItemId() == R.id.menu_schedule) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.menu_schedule) {
                 loadFragment(new ScheduleFragment());
+            } else if (itemId == R.id.menu_announcement) {
+                loadFragment(new AnnouncementFragment());
             } else {
                 loadFragment(new LoginFragment());
             }
