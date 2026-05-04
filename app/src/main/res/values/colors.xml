@@ -2,4 +2,60 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Page background (overall screen gray) -->
+    <color name="background">#F3F4F6</color>
+
+    <!-- Default text color -->
+    <color name="foreground">#2C2F36</color>
+
+    <!-- Card (login container) -->
+    <color name="card">#FFFFFFFF</color>
+
+    <!-- Text inside card -->
+    <color name="card_foreground">#2C2F36</color>
+
+    <!-- Popover / modal background (same as card) -->
+    <color name="popover">#FFFFFFFF</color>
+
+    <!-- Text inside popover -->
+    <color name="popover_foreground">#2C2F36</color>
+
+    <!-- Primary color (UIT blue - buttons, highlights) -->
+    <color name="primary">#2F6DB2</color>
+
+    <!-- Text on primary (button text) -->
+    <color name="primary_foreground">#FFFFFFFF</color>
+
+    <!-- Secondary elements (subtle UI, dropdowns) -->
+    <color name="secondary">#E5E7EB</color>
+
+    <!-- Text on secondary -->
+    <color name="secondary_foreground">#374151</color>
+
+    <!-- Muted backgrounds (very light gray areas) -->
+    <color name="muted">#F9FAFB</color>
+
+    <!-- Muted text (placeholder, helper text) -->
+    <color name="muted_foreground">#6B7280</color>
+
+    <!-- Accent (focused input background - light blue tint) -->
+    <color name="accent">#DCE8F5</color>
+
+    <!-- Text on accent -->
+    <color name="accent_foreground">#2C2F36</color>
+
+    <!-- Destructive (error states, warnings) -->
+    <color name="destructive">#DC2626</color>
+
+    <!-- Text on destructive -->
+    <color name="destructive_foreground">#F9FAFB</color>
+
+    <!-- Borders (input borders, separators) -->
+    <color name="border">#D1D5DB</color>
+
+    <!-- Input background (default input field) -->
+    <color name="input">#E5E7EB</color>
+
+    <!-- Focus ring (active input outline) -->
+    <color name="ring">#2F6DB2</color>
 </resources>
