@@ -17,13 +17,19 @@
         <!-- TAB LAYOUT -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@color/primary"
             app:tabMode="scrollable"
-            app:tabTextColor="@color/black"
-            app:tabSelectedTextColor="@color/primary"
-            app:tabIndicatorColor="@color/primary" />
+            app:tabGravity="start"
+            app:tabTextColor="#B3FFFFFF"
+            app:tabSelectedTextColor="@color/white"
+            app:tabIndicatorHeight="0dp"
+            app:tabBackground="@drawable/tab_indicator"
+            app:tabRippleColor="@android:color/transparent"
+            app:tabPaddingStart="8dp"
+            app:tabPaddingEnd="8dp"
+            app:tabContentStart="18dp" />
     </LinearLayout>
 
     <LinearLayout

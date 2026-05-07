@@ -11,7 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.uithub.R;
 import com.example.uithub.models.Announcement;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.ViewHolder> {
 
@@ -26,6 +30,17 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         notifyDataSetChanged();
     }
 
+    private String formatDate(String raw) {
+        try {
+            SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
+            Date date = input.parse(raw);
+            SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy", Locale.getDefault());
+            return output.format(date);
+        } catch (ParseException e) {
+            return raw;
+        }
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -34,12 +49,13 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         return new ViewHolder(v);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Announcement a = list.get(position);
 
         holder.title.setText(a.getTitle());
-        holder.date.setText(a.getDate());
+        holder.date.setText(formatDate(a.getDate()));
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.example.uithub;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +30,7 @@ public class AnnouncementListFragment extends Fragment {
     private RecyclerView recyclerView;
     private AnnouncementAdapter adapter;
     private MainRepository repository;
+    private ProgressBar spinner;
 
     public AnnouncementListFragment() {
         super(R.layout.fragment_announcement_list);
@@ -60,10 +62,13 @@ public class AnnouncementListFragment extends Fragment {
 
         repository = new MainRepository();
 
+        spinner = view.findViewById(R.id.loadingSpinner);
+
         callAPI(topic);
     }
 
     private void callAPI(String topic) {
+        spinner.setVisibility(View.VISIBLE);
         repository.getAnnouncements(topic)
                 .enqueue(new Callback<AnnouncementResponse>() {
                     @Override
@@ -71,7 +76,7 @@ public class AnnouncementListFragment extends Fragment {
                                            Response<AnnouncementResponse> response) {
 
                         if (response.isSuccessful() && response.body() != null) {
-
+                            spinner.setVisibility(View.GONE);
                             List<Announcement> list = response.body().getData();
                             adapter.setData(list);
                         }
@@ -79,6 +84,7 @@ public class AnnouncementListFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<AnnouncementResponse> call, Throwable t) {
+                        spinner.setVisibility(View.GONE);
                         Log.e("API", t.getMessage());
                     }
                 });

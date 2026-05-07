@@ -12,6 +12,14 @@
     <string name="friday">Friday</string>
     <string name="saturday">Saturday</string>
     <string name="period">Tiết</string>
+    <string name="location_icon">Location icon</string>
+    <string name="bullet">·</string>
+    <string name="clock_icon">Clock icon</string>
+    <string name="room_text_placeholder">Phòng A101</string>
+    <string name="teach_text_placeholder">Nguyễn Văn A • 10072</string>
+    <string name="period_text_placeholder">Tiết 4-5</string>
+    <string name="time_text_placeholder">07:30 - 09:15</string>
+    <string name="subject_text_placeholder">Môn A</string>
 
 
 </resources>
