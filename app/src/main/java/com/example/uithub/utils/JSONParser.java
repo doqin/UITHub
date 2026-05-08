@@ -51,7 +51,7 @@ public class JSONParser {
             JSONObject o = arr.getJSONObject(i);
 
             Announcement a = new Announcement();
-            a.id = o.getString("_id");
+            a._id = o.getString("_id");
             a.date = o.getString("date");
             a.link = o.getString("link");
             a.node_id = o.getString("node_id");

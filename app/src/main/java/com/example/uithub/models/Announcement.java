@@ -1,85 +1,70 @@
 package com.example.uithub.models;
 
+import java.util.List;
+
 public class Announcement {
-    public String id;
+
+    public String _id;
+    public String node_id;
+    public String title;
+    public String preview;
     public String date;
     public String link;
-    public String node_id;
-    public String preview;
     public String source;
-    public String title;
     public String topic;
     public String updated_at;
 
-    public String getId() {
-        return id;
+    private Details details;
+
+    public static class Details {
+
+        private String content;
+        private List<Related> related;
+
+        public String getContent() {
+            return content;
+        }
+
+        public List<Related> getRelated() {
+            return related;
+        }
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public static class Related {
+
+        private String title;
+        private String link;
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getLink() {
+            return link;
+        }
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
+    public String get_id() {
+        return _id;
     }
 
     public String getNode_id() {
         return node_id;
     }
 
-    public void setNode_id(String node_id) {
-        this.node_id = node_id;
+    public String getTitle() {
+        return title;
     }
 
     public String getPreview() {
         return preview;
     }
 
-    public void setPreview(String preview) {
-        this.preview = preview;
+    public String getDate() {
+        return date;
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public String getUpdated_at() {
-        return updated_at;
-    }
-
-    public void setUpdated_at(String updated_at) {
-        this.updated_at = updated_at;
+    public Details getDetails() {
+        return details;
     }
 }

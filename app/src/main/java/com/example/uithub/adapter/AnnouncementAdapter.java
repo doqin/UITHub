@@ -1,5 +1,7 @@
 package com.example.uithub.adapter;
 
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.uithub.AnnouncementDetail;
 import com.example.uithub.R;
 import com.example.uithub.models.Announcement;
 
@@ -54,8 +57,30 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Announcement a = list.get(position);
 
+        Log.d("ANNOUNCEMENT", "Title: " + a.getTitle());
+
+        if (a.getDetails() != null) {
+            Log.d("ANNOUNCEMENT",
+                    "Content: " + a.getDetails().getContent());
+        } else {
+            Log.d("ANNOUNCEMENT",
+                    "Details is NULL");
+        }
+
         holder.title.setText(a.getTitle());
         holder.date.setText(formatDate(a.getDate()));
+
+        holder.itemView.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    v.getContext(),
+                    AnnouncementDetail.class
+            );
+
+            intent.putExtra("node_id", a.getNode_id());
+
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
