@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detailRoot"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background">
 
     <!-- Loading spinner -->
     <ProgressBar
@@ -12,53 +15,111 @@
         android:layout_gravity="center"
         android:visibility="gone" />
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <!-- Top bar with back button -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/detailToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:background="@color/background"
+            android:minHeight="?attr/actionBarSize"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            tools:title="Chi tiết thông báo" />
 
-            <!-- Title -->
-            <TextView
-                android:id="@+id/detailTitle"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <!-- Date -->
-            <TextView
-                android:id="@+id/dateText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="13sp"
-                android:textColor="#666666" />
+                <!-- Card for content -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/card"
+                    android:elevation="2dp"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"
-                android:background="#DDDDDD" />
+                    <!-- Title -->
+                    <TextView
+                        android:id="@+id/detailTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/foreground"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        tools:text="Lịch thi giữa kỳ" />
 
-            <!-- Content -->
-            <TextView
-                android:id="@+id/detailContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:lineSpacingExtra="4dp"
-                android:textColor="@android:color/black" />
+                    <!-- Date -->
+                    <TextView
+                        android:id="@+id/dateText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:textColor="@color/muted_foreground"
+                        android:textSize="13sp"
+                        tools:text="15/05/2026" />
 
-        </LinearLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/border" />
 
-    </ScrollView>
+                    <!-- Content -->
+                    <TextView
+                        android:id="@+id/detailContent"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:lineSpacingExtra="8dp"
+                        android:textColor="@color/foreground"
+                        android:textSize="16sp"
+                        tools:text="Nội dung thông báo chi tiết ở đây..." />
+                </LinearLayout>
+
+                <!-- Related Section -->
+                <LinearLayout
+                    android:id="@+id/relatedSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/relatedTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/related_links"
+                        android:textColor="@color/foreground"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/relatedContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="@color/card"
+                        android:orientation="vertical"
+                        android:padding="8dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+    </LinearLayout>
 
 </FrameLayout>
