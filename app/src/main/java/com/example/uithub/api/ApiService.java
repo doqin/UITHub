@@ -22,7 +22,9 @@ public interface ApiService {
 
     @GET("announcements")
     Call<AnnouncementResponse> getAnnouncements(
-            @Query("topic") String topic
+            @Query("topic") String topic,
+            @Query("skip") int skip,
+            @Query("limit") int limit
     );
 
     @GET("announcements/{node_id}")

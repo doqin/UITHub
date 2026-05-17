@@ -15,7 +15,6 @@ import com.example.uithub.models.LoginRequest;
 import com.example.uithub.utils.PreferenceManager;
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -59,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.login_missing_credentials), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -97,27 +96,16 @@ public class LoginActivity extends AppCompatActivity {
                             preferenceManager.saveToken(token);
                             startMainActivity();
                         } else {
-                            Toast.makeText(LoginActivity.this, "Received empty token", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, getString(R.string.login_received_empty_token), Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        try {
-                            JSONObject jsonObject = new JSONObject(responseData);
-                            JSONArray detailArr = jsonObject.optJSONArray("detail");
-                            String errorMsg = "Login failed";
-                            if (detailArr != null && detailArr.length() > 0) {
-                                errorMsg = detailArr.getJSONObject(0).optString("msg", "Login failed");
-                            } else {
-                                errorMsg = jsonObject.optString("detail", "Login failed");
-                            }
-                            String finalErrorMsg = errorMsg;
-                            Toast.makeText(LoginActivity.this, finalErrorMsg, Toast.LENGTH_LONG).show();
-                        } catch (Exception e) {
-                            Toast.makeText(LoginActivity.this, "Login failed: " + response.code(), Toast.LENGTH_SHORT).show();
-                        }
+                        Toast.makeText(LoginActivity.this,
+                                getString(R.string.login_failed_with_code, response.code()),
+                                Toast.LENGTH_SHORT).show();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Toast.makeText(LoginActivity.this, "Error processing response", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_response_error), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -130,9 +118,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 if (t instanceof SocketTimeoutException) {
-                    Toast.makeText(LoginActivity.this, "Login is taking too long. Please try again.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_timeout), Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.network_error_generic), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -140,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setLoading(boolean loading) {
         btnLogin.setEnabled(!loading);
-        btnLogin.setText(loading ? "Logging in..." : "Login");
+        btnLogin.setText(loading ? getString(R.string.logging_in) : getString(R.string.login));
         progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
     }
 

@@ -21,6 +21,10 @@
         <item name="colorOutlineVariant">@color/outline_variant</item>
         <item name="colorPrimaryContainer">@color/primary_container</item>
         <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+
+        <!-- Active indicator color for BottomNavigationView in Material 3 -->
+        <item name="colorSecondaryContainer">@color/accent</item>
+        <item name="colorOnSecondaryContainer">@color/accent_foreground</item>
     </style>
 
     <style name="Theme.UITHub" parent="Base.Theme.UITHub" />

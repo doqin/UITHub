@@ -16,6 +16,8 @@ import com.example.uithub.models.Announcement;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -25,20 +27,56 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
     private List<Announcement> list;
 
     public AnnouncementAdapter(List<Announcement> list) {
-        this.list = list;
+        this.list = list != null ? list : new ArrayList<>();
     }
 
     public void setData(List<Announcement> newList) {
-        this.list = newList;
+        this.list = newList != null ? newList : new ArrayList<>();
         notifyDataSetChanged();
+    }
+
+    public void addData(List<Announcement> moreList) {
+        if (moreList != null && !moreList.isEmpty()) {
+            int startPos = list.size();
+            list.addAll(moreList);
+            notifyItemRangeInserted(startPos, moreList.size());
+        }
     }
 
     private String formatDate(String raw) {
         try {
             SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault());
             Date date = input.parse(raw);
-            SimpleDateFormat output = new SimpleDateFormat("HH:mm - dd/MM/yyyy", Locale.getDefault());
-            return output.format(date);
+            if (date == null) return raw;
+
+            Calendar now = Calendar.getInstance();
+            now.set(Calendar.HOUR_OF_DAY, 0);
+            now.set(Calendar.MINUTE, 0);
+            now.set(Calendar.SECOND, 0);
+            now.set(Calendar.MILLISECOND, 0);
+
+            Calendar then = Calendar.getInstance();
+            then.setTime(date);
+            then.set(Calendar.HOUR_OF_DAY, 0);
+            then.set(Calendar.MINUTE, 0);
+            then.set(Calendar.SECOND, 0);
+            then.set(Calendar.MILLISECOND, 0);
+
+            long diffMillis = now.getTimeInMillis() - then.getTimeInMillis();
+            long days = diffMillis / (24 * 60 * 60 * 1000);
+
+            if (days == 0) {
+                return "Hôm nay";
+            } else if (days == 1) {
+                return "Hôm qua";
+            } else if (days > 1 && days < 7) {
+                return days + " ngày trước";
+            } else if (days == 7) {
+                return "Một tuần trước";
+            } else {
+                SimpleDateFormat output = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                return output.format(date);
+            }
         } catch (ParseException e) {
             return raw;
         }

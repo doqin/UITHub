@@ -29,7 +29,11 @@ public class AnnouncementFragment extends Fragment {
         viewPager.setAdapter(adapter);
 
         final String[] tabTitles = {
-                "Chung", "ĐKHP", "Schedule", "Học phí", "Khác"
+            getString(R.string.announcement_tab_general),
+            getString(R.string.announcement_tab_registration),
+            getString(R.string.announcement_tab_schedule),
+            getString(R.string.announcement_tab_tuition),
+            getString(R.string.announcement_tab_other)
         };
 
         new TabLayoutMediator(tabLayout, viewPager,
