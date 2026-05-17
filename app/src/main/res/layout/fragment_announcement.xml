@@ -8,24 +8,24 @@
     android:orientation="vertical"
     tools:context=".AnnouncementFragment">
 
-    <!-- header row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="?attr/colorSurface"
         android:orientation="horizontal"
-        android:baselineAligned="false">
+        android:baselineAligned="false"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp">
 
-        <!-- TAB LAYOUT -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="?attr/colorPrimary"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_segmented_bar"
             app:tabMode="scrollable"
             app:tabGravity="start"
-            app:tabTextColor="@color/primary_foreground"
-            app:tabSelectedTextColor="?attr/colorOnPrimary"
+            app:tabTextColor="?attr/colorOnSurfaceVariant"
+            app:tabSelectedTextColor="?attr/colorOnPrimaryContainer"
             app:tabIndicatorHeight="0dp"
             app:tabBackground="@drawable/tab_indicator"
             app:tabRippleColor="@android:color/transparent"

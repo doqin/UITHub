@@ -3,22 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="7dp"
     android:orientation="horizontal">
 
     <!-- Color Accent Bar from announcement-layout -->
     <View
         android:layout_width="4dp"
         android:layout_height="match_parent"
-        android:background="?attr/colorPrimary" />
+        android:background="@drawable/bg_schedule_accent" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@drawable/bg_schedule_card">
+        android:padding="18dp"
+        android:background="@drawable/bg_schedule_card"
+        android:elevation="1dp">
 
         <TextView
             android:id="@+id/tvName"
@@ -26,7 +28,7 @@
             android:layout_height="wrap_content"
             android:text="@string/subject_text_placeholder"
             android:textColor="?attr/colorOnSurface"
-            android:textSize="17sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
 

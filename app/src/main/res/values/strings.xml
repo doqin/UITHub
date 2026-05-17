@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">UITHub</string>
+    <string name="app_tagline">Schedule and campus updates</string>
+    <string name="sign_out">Sign out</string>
+    <string name="login">Login</string>
+    <string name="login_subtitle">Sign in to view your timetable and announcements.</string>
+    <string name="student_id">MSSV</string>
+    <string name="password">Password</string>
     <string name="home">Home</string>
     <string name="tkb">TKB</string>
     <string name="thong_bao">Thông báo</string>
@@ -24,6 +30,7 @@
     <string name="subject_text_placeholder">Môn A</string>
     <string name="class_not_open_this_week">Not open this week</string>
     <string name="classes_open_today">Classes open today</string>
+    <string name="home_intro">Today at a glance: active classes first, latest campus updates below.</string>
     <string name="no_classes_open_today">No classes are open today.</string>
     <string name="recent_announcements">Recent announcements</string>
     <string name="no_recent_announcements">No recent announcements.</string>

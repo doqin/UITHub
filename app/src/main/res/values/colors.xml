@@ -2,17 +2,17 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <!-- Page background (overall screen gray) -->
-    <color name="background">#F3F4F6</color>
+    <!-- Page background -->
+    <color name="background">#F6F8FB</color>
 
     <!-- Default text color -->
-    <color name="foreground">#2C2F36</color>
+    <color name="foreground">#172033</color>
 
     <!-- Card (login container) -->
     <color name="card">#FFFFFFFF</color>
 
     <!-- Text inside card -->
-    <color name="card_foreground">#2C2F36</color>
+    <color name="card_foreground">#172033</color>
 
     <!-- Popover / modal background (same as card) -->
     <color name="popover">#FFFFFFFF</color>
@@ -27,22 +27,22 @@
     <color name="primary_foreground">#FFFFFFFF</color>
 
     <!-- Secondary elements (subtle UI, dropdowns) -->
-    <color name="secondary">#E5E7EB</color>
+    <color name="secondary">#E9EEF5</color>
 
     <!-- Text on secondary -->
-    <color name="secondary_foreground">#374151</color>
+    <color name="secondary_foreground">#223047</color>
 
     <!-- Muted backgrounds (very light gray areas) -->
-    <color name="muted">#F9FAFB</color>
+    <color name="muted">#EEF3F8</color>
 
     <!-- Muted text (placeholder, helper text) -->
-    <color name="muted_foreground">#6B7280</color>
+    <color name="muted_foreground">#64748B</color>
 
     <!-- Accent (focused input background - light blue tint) -->
-    <color name="accent">#DCE8F5</color>
+    <color name="accent">#D9E9F8</color>
 
     <!-- Text on accent -->
-    <color name="accent_foreground">#2C2F36</color>
+    <color name="accent_foreground">#172033</color>
 
     <!-- Destructive (error states, warnings) -->
     <color name="destructive">#DC2626</color>
@@ -51,14 +51,23 @@
     <color name="destructive_foreground">#F9FAFB</color>
 
     <!-- Borders (input borders, separators) -->
-    <color name="border">#D1D5DB</color>
+    <color name="border">#D7DEE8</color>
 
     <!-- Input background (default input field) -->
-    <color name="input">#E5E7EB</color>
+    <color name="input">#EEF3F8</color>
 
     <!-- Focus ring (active input outline) -->
     <color name="ring">#2F6DB2</color>
 
     <!-- Tab indicator for Tab Layout -->
     <color name="tab_indicator">#5E8DC6</color>
+
+    <color name="surface">#F6F8FB</color>
+    <color name="surface_container">#FFFFFF</color>
+    <color name="surface_container_high">#EEF3F8</color>
+    <color name="surface_variant">#E6ECF3</color>
+    <color name="outline">#B8C2D1</color>
+    <color name="outline_variant">#D7DEE8</color>
+    <color name="primary_container">#D9E9F8</color>
+    <color name="on_primary_container">#143A61</color>
 </resources>
