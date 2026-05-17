@@ -4,11 +4,7 @@ plugins {
 
 android {
     namespace 'com.example.uithub'
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.uithub"
@@ -40,6 +36,10 @@ dependencies {
     implementation libs.fragment
     implementation libs.recyclerview
     implementation libs.viewpager2
+    implementation libs.okhttp
+    implementation libs.retrofit
+    implementation libs.retrofit.converter.gson
+    implementation libs.retrofit.converter.scalars
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
