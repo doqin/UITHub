@@ -83,7 +83,7 @@ public class ScheduleFragment extends Fragment {
     private void fetchSchedule(boolean forceReload) {
         String token = preferenceManager.getToken();
         if (token == null) {
-            Toast.makeText(getContext(), "Please login first", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getString(R.string.please_login_first), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -105,15 +105,15 @@ public class ScheduleFragment extends Fragment {
                         preferenceManager.saveScheduleJson(json);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        showToast("Unable to load schedule");
+                        showToast(getString(R.string.unable_to_load_schedule));
                     }
                 } else if (response.code() == 401) {
                     if (getActivity() != null) {
                         preferenceManager.clear();
-                        showToast("Please login again");
+                        showToast(getString(R.string.please_login_again));
                     }
                 } else {
-                    showToast("Failed to load schedule: " + response.code());
+                    showToast(getString(R.string.failed_to_load_schedule, response.code()));
                 }
             }
 
@@ -126,11 +126,11 @@ public class ScheduleFragment extends Fragment {
                 }
 
                 if (!forceReload && renderCachedSchedule()) {
-                    showToast("Showing cached schedule");
+                    showToast(getString(R.string.showing_cached_schedule));
                     return;
                 }
 
-                showToast("Network error: " + t.getMessage());
+                showToast(getString(R.string.network_error_generic));
             }
         });
     }

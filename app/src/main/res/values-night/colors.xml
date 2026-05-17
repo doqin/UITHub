@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="background">#10141C</color>
+    <color name="foreground">#EEF3F8</color>
+    <color name="card">#1A202B</color>
+    <color name="card_foreground">#EEF3F8</color>
+    <color name="popover">#1A202B</color>
+    <color name="popover_foreground">#EEF3F8</color>
+    <color name="primary">#67A8E8</color>
+    <color name="primary_foreground">#07111F</color>
+    <color name="secondary">#252D3A</color>
+    <color name="secondary_foreground">#D8E0EA</color>
+    <color name="muted">#202633</color>
+    <color name="muted_foreground">#AAB5C4</color>
+    <color name="accent">#24364A</color>
+    <color name="accent_foreground">#E8F1FB</color>
+    <color name="destructive">#F87171</color>
+    <color name="destructive_foreground">#1B0B0B</color>
+    <color name="border">#3A4656</color>
+    <color name="input">#252D3A</color>
+    <color name="ring">#67A8E8</color>
+    <color name="tab_indicator">#86BDF0</color>
+    <color name="surface">#10141C</color>
+    <color name="surface_container">#1A202B</color>
+    <color name="surface_container_high">#252D3A</color>
+    <color name="surface_variant">#30394A</color>
+    <color name="outline">#5F6B7B</color>
+    <color name="outline_variant">#3A4656</color>
+    <color name="primary_container">#173B5F</color>
+    <color name="on_primary_container">#DCEEFF</color>
+</resources>

@@ -1,42 +1,68 @@
 <resources>
     <string name="app_name">UITHub</string>
-    <string name="app_tagline">Schedule and campus updates</string>
-    <string name="sign_out">Sign out</string>
-    <string name="login">Login</string>
-    <string name="login_subtitle">Sign in to view your timetable and announcements.</string>
+    <string name="app_tagline">Lịch học và cập nhật trong khuôn viên</string>
+    <string name="sign_out">Đăng xuất</string>
+    <string name="login">Đăng nhập</string>
+    <string name="login_subtitle">Đăng nhập để xem thời khóa biểu và thông báo.</string>
     <string name="student_id">MSSV</string>
-    <string name="password">Password</string>
-    <string name="home">Home</string>
+    <string name="password">Mật khẩu</string>
+    <string name="home">Trang chủ</string>
     <string name="tkb">TKB</string>
     <string name="thong_bao">Thông báo</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="monday">Monday</string>
-    <string name="tuesday">Tuesday</string>
-    <string name="wednesday">Wednesday</string>
-    <string name="thursday">Thursday</string>
-    <string name="friday">Friday</string>
-    <string name="saturday">Saturday</string>
+    <string name="hello_blank_fragment">Xin chào</string>
+    <string name="monday">Thứ Hai</string>
+    <string name="tuesday">Thứ Ba</string>
+    <string name="wednesday">Thứ Tư</string>
+    <string name="thursday">Thứ Năm</string>
+    <string name="friday">Thứ Sáu</string>
+    <string name="saturday">Thứ Bảy</string>
     <string name="period">Tiết</string>
-    <string name="reload_schedule">Reload schedule</string>
+    <string name="reload_schedule">Tải lại thời khóa biểu</string>
 
-    <string name="location_icon">Location icon</string>
+    <string name="location_icon">Biểu tượng vị trí</string>
     <string name="bullet">·</string>
-    <string name="clock_icon">Clock icon</string>
+    <string name="clock_icon">Biểu tượng đồng hồ</string>
     <string name="room_text_placeholder">Phòng A101</string>
     <string name="teach_text_placeholder">Nguyễn Văn A • 10072</string>
     <string name="period_text_placeholder">Tiết 4-5</string>
     <string name="time_text_placeholder">07:30 - 09:15</string>
     <string name="subject_text_placeholder">Môn A</string>
-    <string name="class_not_open_this_week">Not open this week</string>
-    <string name="classes_open_today">Classes open today</string>
-    <string name="home_intro">Today at a glance: active classes first, latest campus updates below.</string>
-    <string name="no_classes_open_today">No classes are open today.</string>
-    <string name="recent_announcements">Recent announcements</string>
-    <string name="no_recent_announcements">No recent announcements.</string>
+    <string name="class_not_open_this_week">Tuần này không học</string>
+    <string name="classes_open_today">Lớp học hôm nay</string>
+    <string name="home_intro">Tổng quan hôm nay: lớp đang học ở trên, thông báo mới nhất ở dưới.</string>
+    <string name="no_classes_open_today">Hôm nay không có lớp học.</string>
+    <string name="recent_announcements">Thông báo gần đây</string>
+    <string name="no_recent_announcements">Không có thông báo gần đây.</string>
     <string name="related_links">Liên kết liên quan</string>
-    <string name="open_article_web_page">Open web page</string>
+    <string name="open_article_web_page">Mở trang web</string>
     <string name="student_handbook">Sổ tay sinh viên</string>
     <string name="examination_guidelines">Hướng dẫn thi</string>
+    <string name="announcement_tab_general">Chung</string>
+    <string name="announcement_tab_registration">ĐKHP</string>
+    <string name="announcement_tab_schedule">Lịch học</string>
+    <string name="announcement_tab_tuition">Học phí</string>
+    <string name="announcement_tab_other">Khác</string>
+
+    <string name="login_missing_credentials">Vui lòng nhập MSSV và mật khẩu</string>
+    <string name="login_received_empty_token">Nhận được token rỗng</string>
+    <string name="login_failed_generic">Đăng nhập thất bại</string>
+    <string name="login_failed_with_code">Đăng nhập thất bại: %1$d</string>
+    <string name="login_response_error">Lỗi xử lý phản hồi</string>
+    <string name="login_timeout">Đăng nhập quá lâu. Vui lòng thử lại.</string>
+    <string name="network_error_with_message">Lỗi mạng: %1$s</string>
+    <string name="network_error_generic">Lỗi mạng. Vui lòng thử lại.</string>
+    <string name="logging_in">Đang đăng nhập...</string>
+
+    <string name="please_login_first">Vui lòng đăng nhập trước</string>
+    <string name="unable_to_load_schedule">Không thể tải thời khóa biểu</string>
+    <string name="please_login_again">Vui lòng đăng nhập lại</string>
+    <string name="failed_to_load_schedule">Tải thời khóa biểu thất bại: %1$d</string>
+    <string name="showing_cached_schedule">Đang hiển thị thời khóa biểu đã lưu</string>
+
+    <string name="date_today">Hôm nay</string>
+    <string name="date_yesterday">Hôm qua</string>
+    <string name="date_days_ago">%1$d ngày trước</string>
+    <string name="date_week_ago">Một tuần trước</string>
 
 </resources>

@@ -19,8 +19,8 @@ public class MainRepository {
                 .create(ApiService.class);
     }
 
-    public Call<AnnouncementResponse> getAnnouncements(String topic) {
-        return apiService.getAnnouncements(topic);
+    public Call<AnnouncementResponse> getAnnouncements(String topic, int skip, int limit) {
+        return apiService.getAnnouncements(topic, skip, limit);
     }
 
     public Call<AnnouncementDetailResponse> getAnnouncementDetail(String nodeId) {
