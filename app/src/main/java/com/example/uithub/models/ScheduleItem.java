@@ -1,6 +1,8 @@
 package com.example.uithub.models;
 
-public class ScheduleItem {
+import java.io.Serializable;
+
+public class ScheduleItem implements Serializable {
     public String day;
     public String period;
     public String time;

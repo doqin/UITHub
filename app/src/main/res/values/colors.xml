@@ -58,4 +58,7 @@
 
     <!-- Focus ring (active input outline) -->
     <color name="ring">#2F6DB2</color>
+
+    <!-- Tab indicator for Tab Layout -->
+    <color name="tab_indicator">#5E8DC6</color>
 </resources>

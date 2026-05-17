@@ -16,7 +16,7 @@ public class RetrofitClient {
 
     private static Retrofit retrofit = null;
 
-    public static ApiService getApiService() {
+    public static Retrofit getInstance() {
         if (retrofit == null) {
             OkHttpClient client = new OkHttpClient.Builder()
                     .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -33,6 +33,10 @@ public class RetrofitClient {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
-        return retrofit.create(ApiService.class);
+        return retrofit;
+    }
+
+    public static ApiService getApiService() {
+        return getInstance().create(ApiService.class);
     }
 }

@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         preferenceManager = new PreferenceManager(this);
         if (preferenceManager.getToken() == null) {
             startActivity(new Intent(this, LoginActivity.class));
@@ -49,10 +49,14 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.menu_schedule) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.menu_schedule) {
                 loadFragment(new ScheduleFragment());
                 return true;
-            } else if (item.getItemId() == R.id.menu_home || item.getItemId() == R.id.menu_announcement) {
+            } else if (itemId == R.id.menu_announcement) {
+                loadFragment(new AnnouncementFragment());
+                return true;
+            } else if (itemId == R.id.menu_home) {
                 clearFragment();
                 return true;
             }

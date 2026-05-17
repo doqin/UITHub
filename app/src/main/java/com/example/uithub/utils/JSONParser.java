@@ -1,5 +1,6 @@
 package com.example.uithub.utils;
 
+import com.example.uithub.models.Announcement;
 import com.example.uithub.models.ScheduleItem;
 
 import org.json.JSONArray;
@@ -35,6 +36,32 @@ public class JSONParser {
             item.date = o.getString("date");
 
             list.add(item);
+        }
+
+        return list;
+    }
+
+    public static List<Announcement> parseAnnouncements(String json) throws Exception {
+        List<Announcement> list = new ArrayList<>();
+
+        JSONObject obj = new JSONObject(json);
+        JSONArray arr = obj.getJSONArray("data");
+
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject o = arr.getJSONObject(i);
+
+            Announcement a = new Announcement();
+            a._id = o.getString("_id");
+            a.date = o.getString("date");
+            a.link = o.getString("link");
+            a.node_id = o.getString("node_id");
+            a.preview = o.getString("preview");
+            a.source = o.getString("source");
+            a.title = o.getString("title");
+            a.topic = o.getString("topic");
+            a.updated_at = o.getString("updated_at");
+
+            list.add(a);
         }
 
         return list;

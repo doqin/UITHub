@@ -1,51 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_schedule_cell"
-    android:orientation="vertical"
-    android:padding="10dp"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="6dp">
+    android:layout_margin="8dp"
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="match_parent"
+    <!-- Color Accent Bar from announcement-layout -->
+    <View
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/primary" />
+
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/bg_schedule_card">
 
-    <TextView
-        android:id="@+id/tvStartEndTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/subject_text_placeholder"
+            android:textColor="@color/foreground"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-    <TextView
-        android:id="@+id/tvRoom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="?attr/colorOnSurface"
-        android:textStyle="bold" />
+        <!-- Time and Period Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
 
-    <TextView
-        android:id="@+id/tvTeacher"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="?attr/colorOnSurfaceVariant" />
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_clock"
+                android:contentDescription="@string/clock_icon"
+                android:layout_marginEnd="6dp"
+                app:tint="@color/muted_foreground" />
 
-    <TextView
-        android:id="@+id/tvPeriod"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="?attr/colorOnSurfaceVariant" />
+            <TextView
+                android:id="@+id/tvStartEndTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/time_text_placeholder"
+                android:textColor="@color/muted_foreground"
+                android:textSize="13sp" />
 
+            <TextView
+                android:id="@+id/tvPeriod"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/period_text_placeholder"
+                android:textSize="12sp"
+                android:textColor="@color/primary"
+                android:background="@drawable/bg_period_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Location Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_location_pin"
+                android:contentDescription="@string/location_icon"
+                android:layout_marginEnd="6dp"
+                app:tint="@color/muted_foreground" />
+
+            <TextView
+                android:id="@+id/tvRoom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/room_text_placeholder"
+                android:textColor="@color/muted_foreground"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvTeacher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/teach_text_placeholder"
+            android:textColor="@color/foreground"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="1.3" />
+
+    </LinearLayout>
 </LinearLayout>
