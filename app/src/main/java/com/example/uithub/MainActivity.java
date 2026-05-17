@@ -57,14 +57,14 @@ public class MainActivity extends AppCompatActivity {
                 loadFragment(new AnnouncementFragment());
                 return true;
             } else if (itemId == R.id.menu_home) {
-                clearFragment();
+                loadFragment(new HomeFragment());
                 return true;
             }
             return false;
         });
 
         if (savedInstanceState == null) {
-            bottomNav.setSelectedItemId(R.id.menu_schedule);
+            bottomNav.setSelectedItemId(R.id.menu_home);
         }
     }
 
@@ -75,13 +75,4 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
-    private void clearFragment() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView);
-        if (fragment != null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(fragment)
-                    .commit();
-        }
-    }
 }

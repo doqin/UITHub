@@ -22,7 +22,13 @@
     <string name="period_text_placeholder">Tiết 4-5</string>
     <string name="time_text_placeholder">07:30 - 09:15</string>
     <string name="subject_text_placeholder">Môn A</string>
+    <string name="class_not_open_this_week">Not open this week</string>
+    <string name="classes_open_today">Classes open today</string>
+    <string name="no_classes_open_today">No classes are open today.</string>
+    <string name="recent_announcements">Recent announcements</string>
+    <string name="no_recent_announcements">No recent announcements.</string>
     <string name="related_links">Liên kết liên quan</string>
+    <string name="open_article_web_page">Open web page</string>
     <string name="student_handbook">Sổ tay sinh viên</string>
     <string name="examination_guidelines">Hướng dẫn thi</string>
 

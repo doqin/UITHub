@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.uithub.R;
 import com.example.uithub.models.ScheduleItem;
+import com.example.uithub.utils.ScheduleStatusUtils;
 
 import java.util.List;
 
@@ -19,6 +20,11 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
 
     public ScheduleItemAdapter(List<ScheduleItem> list) {
         this.list = list;
+    }
+
+    public void setData(List<ScheduleItem> newList) {
+        this.list = newList;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -39,7 +45,7 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
         holder.tvTeacher.setText(item.teacher);
         holder.tvPeriod.setText(item.period);
         holder.tvStartEndTime.setText(item.start_time + " - " + item.end_time);
-
+        holder.tvInactiveWeek.setVisibility(ScheduleStatusUtils.isOpenThisWeek(item) ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -49,7 +55,7 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvName, tvTime, tvRoom, tvTeacher, tvPeriod, tvStartEndTime;
+        TextView tvName, tvTime, tvRoom, tvTeacher, tvPeriod, tvStartEndTime, tvInactiveWeek;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -59,6 +65,7 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
             tvTeacher = itemView.findViewById(R.id.tvTeacher);
             tvPeriod = itemView.findViewById(R.id.tvPeriod);
             tvStartEndTime = itemView.findViewById(R.id.tvStartEndTime);
+            tvInactiveWeek = itemView.findViewById(R.id.tvInactiveWeek);
 
         }
     }

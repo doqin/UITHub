@@ -10,7 +10,7 @@
     <View
         android:layout_width="4dp"
         android:layout_height="match_parent"
-        android:background="@color/primary" />
+        android:background="?attr/colorPrimary" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -25,10 +25,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/subject_text_placeholder"
-            android:textColor="@color/foreground"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="17sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tvInactiveWeek"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/bg_inactive_week_badge"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp"
+            android:text="@string/class_not_open_this_week"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <!-- Time and Period Row -->
         <LinearLayout
@@ -44,14 +58,14 @@
                 android:src="@drawable/ic_clock"
                 android:contentDescription="@string/clock_icon"
                 android:layout_marginEnd="6dp"
-                app:tint="@color/muted_foreground" />
+                app:tint="?attr/colorOnSurfaceVariant" />
 
             <TextView
                 android:id="@+id/tvStartEndTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/time_text_placeholder"
-                android:textColor="@color/muted_foreground"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="13sp" />
 
             <TextView
@@ -60,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/period_text_placeholder"
                 android:textSize="12sp"
-                android:textColor="@color/primary"
+                android:textColor="?attr/colorOnSurface"
                 android:background="@drawable/bg_period_badge"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
@@ -81,21 +95,21 @@
                 android:src="@drawable/ic_location_pin"
                 android:contentDescription="@string/location_icon"
                 android:layout_marginEnd="6dp"
-                app:tint="@color/muted_foreground" />
+                app:tint="?attr/colorOnSurfaceVariant" />
 
             <TextView
                 android:id="@+id/tvRoom"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/room_text_placeholder"
-                android:textColor="@color/muted_foreground"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="13sp" />
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/border"
+            android:background="?attr/colorOutlineVariant"
             android:layout_marginBottom="8dp" />
 
         <TextView
@@ -103,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/teach_text_placeholder"
-            android:textColor="@color/foreground"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="13sp"
             android:lineSpacingMultiplier="1.3" />
 

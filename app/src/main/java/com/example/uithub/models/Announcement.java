@@ -64,6 +64,10 @@ public class Announcement {
         return date;
     }
 
+    public String getLink() {
+        return link;
+    }
+
     public Details getDetails() {
         return details;
     }

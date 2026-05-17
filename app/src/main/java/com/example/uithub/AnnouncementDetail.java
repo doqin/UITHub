@@ -1,8 +1,10 @@
 package com.example.uithub;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +16,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.uithub.models.Announcement;
 import com.example.uithub.models.AnnouncementDetailResponse;
 import com.example.uithub.repository.MainRepository;
+import com.google.android.material.button.MaterialButton;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,6 +33,7 @@ public class AnnouncementDetail extends AppCompatActivity {
 
     private TextView titleText;
     private TextView contentText;
+    private MaterialButton openArticleButton;
     private ProgressBar spinner;
 
     private MainRepository repository;
@@ -44,6 +49,10 @@ public class AnnouncementDetail extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle(getString(R.string.thong_bao));
         }
+        if (toolbar.getNavigationIcon() != null) {
+            DrawableCompat.setTint(toolbar.getNavigationIcon(), getThemeColor(com.google.android.material.R.attr.colorOnSurface));
+        }
+        toolbar.setTitleTextColor(getThemeColor(com.google.android.material.R.attr.colorOnSurface));
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         View root = findViewById(R.id.detailRoot);
@@ -55,6 +64,7 @@ public class AnnouncementDetail extends AppCompatActivity {
 
         titleText = findViewById(R.id.detailTitle);
         contentText = findViewById(R.id.detailContent);
+        openArticleButton = findViewById(R.id.openArticleButton);
         spinner = findViewById(R.id.loadingSpinner);
         spinner.bringToFront();
 
@@ -88,6 +98,7 @@ public class AnnouncementDetail extends AppCompatActivity {
                                     ? announcement.getDetails().getContent() : "null"));
 
                             titleText.setText(announcement.getTitle());
+                            bindArticleLink(announcement.getLink());
 
                             if (announcement.getDetails() != null) {
                                 contentText.setText(announcement.getDetails().getContent());
@@ -107,12 +118,13 @@ public class AnnouncementDetail extends AppCompatActivity {
                                             ViewGroup.LayoutParams.WRAP_CONTENT
                                     ));
                                     linkView.setText(rel.getTitle());
-                                    linkView.setTextColor(getResources().getColor(R.color.primary));
+                                    linkView.setTextColor(getThemeColor(androidx.appcompat.R.attr.colorPrimary));
                                     linkView.setTextSize(15f);
                                     linkView.setPadding(16, 12, 16, 12);
                                     linkView.setClickable(true);
                                     linkView.setFocusable(true);
                                     linkView.setBackgroundResource(android.R.drawable.list_selector_background);
+                                    linkView.setBackgroundTintList(ColorStateList.valueOf(getThemeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)));
 
                                     linkView.setOnClickListener(v -> {
                                         if (rel.getLink() != null) {
@@ -138,5 +150,25 @@ public class AnnouncementDetail extends AppCompatActivity {
                         Log.e("API", t.getMessage());
                     }
                 });
+    }
+
+    private void bindArticleLink(String link) {
+        if (link == null || link.trim().isEmpty()) {
+            openArticleButton.setVisibility(View.GONE);
+            openArticleButton.setOnClickListener(null);
+            return;
+        }
+
+        openArticleButton.setVisibility(View.VISIBLE);
+        openArticleButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+            startActivity(intent);
+        });
+    }
+
+    private int getThemeColor(int attr) {
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(attr, value, true);
+        return value.data;
     }
 }

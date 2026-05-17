@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/detailRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="?attr/colorSurface">
 
     <!-- Loading spinner -->
     <ProgressBar
@@ -13,6 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:indeterminateTint="?attr/colorPrimary"
         android:visibility="gone" />
 
     <LinearLayout
@@ -25,7 +27,7 @@
             android:id="@+id/detailToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background"
+            android:background="?attr/colorSurface"
             android:minHeight="?attr/actionBarSize"
             android:paddingStart="4dp"
             android:paddingEnd="4dp"
@@ -35,6 +37,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="?attr/colorSurface"
             android:fillViewport="true">
 
             <LinearLayout
@@ -47,7 +50,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/card"
+                    android:background="?attr/colorSurfaceContainer"
                     android:elevation="2dp"
                     android:orientation="vertical"
                     android:padding="16dp">
@@ -57,7 +60,7 @@
                         android:id="@+id/detailTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/foreground"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="22sp"
                         android:textStyle="bold"
                         tools:text="Lịch thi giữa kỳ" />
@@ -68,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:textColor="@color/muted_foreground"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="13sp"
                         tools:text="15/05/2026" />
 
@@ -77,7 +80,7 @@
                         android:layout_height="1dp"
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="12dp"
-                        android:background="@color/border" />
+                        android:background="?attr/colorOutlineVariant" />
 
                     <!-- Content -->
                     <TextView
@@ -85,9 +88,23 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:lineSpacingExtra="8dp"
-                        android:textColor="@color/foreground"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="16sp"
                         tools:text="Nội dung thông báo chi tiết ở đây..." />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/openArticleButton"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/open_article_web_page"
+                        android:textColor="?attr/colorPrimary"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_open_in_browser_24"
+                        app:iconTint="?attr/colorPrimary"
+                        app:strokeColor="?attr/colorPrimary"
+                        tools:visibility="visible" />
                 </LinearLayout>
 
                 <!-- Related Section -->
@@ -103,7 +120,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/related_links"
-                        android:textColor="@color/foreground"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -112,7 +129,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:background="@color/card"
+                        android:background="?attr/colorSurfaceContainer"
                         android:orientation="vertical"
                         android:padding="8dp" />
                 </LinearLayout>

@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/subject_text_placeholder"
-            android:textColor="@color/foreground"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
             android:textStyle="bold"
             android:maxLines="2"
@@ -52,7 +52,7 @@
             android:layout_height="2dp"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="6dp"
-            android:background="@color/primary"
+            android:background="?attr/colorPrimary"
             android:alpha="0.3" />
 
         <TextView
@@ -60,10 +60,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/time_text_placeholder"
-            android:textColor="@color/muted_foreground"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="12sp"
             android:drawablePadding="4dp"
-            app:drawableStartCompat="@drawable/ic_calendar" />
+            app:drawableStartCompat="@drawable/ic_calendar"
+            app:drawableTint="?attr/colorOnSurfaceVariant" />
 
     </LinearLayout>
 
@@ -72,6 +73,7 @@
         android:layout_height="20dp"
         android:layout_marginStart="8dp"
         android:src="@drawable/ic_chevron_right"
+        app:tint="?attr/colorOnSurfaceVariant"
         android:alpha="0.3"
         android:contentDescription="@null" />
 
