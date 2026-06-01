@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Settings</string>
+    <string name="title_settings">SETTINGS SCREEN</string>
+    <string name="hint_username">Username:</string>
+    <string name="hint_password">Password:</string>
+    <string name="btn_change_password">[Change Password]</string>
+    <string name="chk_notification">Enable App Notifications</string>
+    <string name="chk_darkmode">Dark Mode</string>
+    <string name="title_language">SYSTEM LANGUAGE:</string>
+    <string name="rb_vi">Vietnamese</string>
+    <string name="rb_en">English</string>
+    <string name="title_student">STUDENT FEATURES</string>
+    <string name="folder_student">Student Forms</string>
+    <string name="form_phuckhao">— Request for re-examination</string>
+    <string name="form_giahan">— Application for tuition extension</string>
+    <string name="form_nvqs">— Application for temporary military deferment</string>
+    <string name="form_nghihoc">— Application for leave of absence</string>
+    <string name="form_baoluu">— Application for academic reservation</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_save">Save Settings</string>
+</resources>

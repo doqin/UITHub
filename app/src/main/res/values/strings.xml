@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Cài Đặt</string>
+    <string name="title_settings">MÀN HÌNH CÀI ĐẶT</string>
+    <string name="hint_username">Tài khoản:</string>
+    <string name="hint_password">Mật khẩu:</string>
+    <string name="btn_change_password">[Đổi mật khẩu]</string>
+    <string name="chk_notification">Bật thông báo ứng dụng</string>
+    <string name="chk_darkmode">Chế độ tối </string>
+    <string name="title_language">NGÔN NGỮ HỆ THỐNG:</string>
+    <string name="rb_vi">Tiếng Việt</string>
+    <string name="rb_en">Tiếng Anh</string>
+    <string name="title_student">TÍNH NĂNG SINH VIÊN</string>
+    <string name="folder_student"> Đơn sinh viên</string>
+    <string name="form_phuckhao">— Đơn xin phúc khảo</string>
+    <string name="form_giahan">— Đơn xin gia hạn học phí</string>
+    <string name="form_nvqs">— Đơn xin giấy tạm hoãn nghĩa vụ quân sự</string>
+    <string name="form_nghihoc">— Đơn xin phép nghỉ học</string>
+    <string name="form_baoluu">— Đơn xin phép bảo lưu kết quả học tập</string>
+    <string name="btn_cancel">Hủy bỏ</string>
+    <string name="btn_save">Lưu cài đặt</string>
+</resources>
