@@ -62,6 +62,13 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Mock Login for testing
+        if (username.equals("admin") && password.equals("123")) {
+            preferenceManager.saveToken("fake-token-for-testing");
+            startMainActivity();
+            return;
+        }
+
         setLoading(true);
 
         LoginRequest loginRequest = new LoginRequest(username, password);
