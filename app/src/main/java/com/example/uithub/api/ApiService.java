@@ -3,7 +3,8 @@ package com.example.uithub.api;
 import com.example.uithub.models.AnnouncementDetailResponse;
 import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.LoginRequest;
-
+import com.example.uithub.models.TuitionItem;
+import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -30,5 +31,11 @@ public interface ApiService {
     @GET("announcements/{node_id}")
     Call<AnnouncementDetailResponse> getAnnouncementDetail(
             @Path("node_id") String nodeId
+    );
+    @GET("tuition/")
+    Call<List<TuitionItem>> getTuition(
+            @Header("Authorization") String authHeader,
+            @Query("hocky") Integer hocky,
+            @Query("namhoc") Integer namhoc
     );
 }
