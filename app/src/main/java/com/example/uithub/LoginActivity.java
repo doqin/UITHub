@@ -81,19 +81,24 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (response.isSuccessful()) {
                         String token = responseData.trim();
+                        Log.d("LoginActivity", "Raw login response: " + responseData);
                         try {
                             if (token.startsWith("{")) {
                                 JSONObject json = new JSONObject(token);
                                 token = json.optString("access_token", json.optString("token", token));
+                                Log.d("LoginActivity", "Parsed JSON token, length: " + token.length());
                             } else if (token.startsWith("\"") && token.endsWith("\"") && token.length() >= 2) {
                                 token = token.substring(1, token.length() - 1);
+                                Log.d("LoginActivity", "Removed quotes from token, length: " + token.length());
                             }
                         } catch (Exception e) {
                             Log.e("LoginActivity", "Token parsing failed, using raw response", e);
                         }
 
+                        Log.d("LoginActivity", "Final token length: " + (token != null ? token.length() : "null"));
                         if (token != null && !token.isEmpty()) {
                             preferenceManager.saveToken(token);
+                            Log.d("LoginActivity", "Token saved successfully");
                             startMainActivity();
                         } else {
                             Toast.makeText(LoginActivity.this, getString(R.string.login_received_empty_token), Toast.LENGTH_SHORT).show();

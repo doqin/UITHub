@@ -87,6 +87,9 @@ public class ScheduleFragment extends Fragment {
             return;
         }
 
+        android.util.Log.d("ScheduleFragment", "Token length: " + token.length() + ", Full token: " + token);
+        android.util.Log.d("ScheduleFragment", "Authorization header: Bearer " + token);
+
         if (scheduleCall != null) {
             scheduleCall.cancel();
         }
@@ -108,6 +111,8 @@ public class ScheduleFragment extends Fragment {
                         showToast(getString(R.string.unable_to_load_schedule));
                     }
                 } else if (response.code() == 401) {
+                    android.util.Log.e("ScheduleFragment", "401 Unauthorized - Full token: " + token);
+                    android.util.Log.e("ScheduleFragment", "401 Unauthorized - Header sent: Bearer " + token);
                     if (getActivity() != null) {
                         preferenceManager.clear();
                         showToast(getString(R.string.please_login_again));
