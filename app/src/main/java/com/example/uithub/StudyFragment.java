@@ -83,7 +83,7 @@ public class StudyFragment extends Fragment {
             public void onResponse(@NonNull Call<TuitionResponse> call, @NonNull Response<TuitionResponse> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    updateTuitionFromItems(response.body().getSemesters());
+                    updateTuitionFromResponse(response.body());
                 }
             }
 
@@ -94,22 +94,24 @@ public class StudyFragment extends Fragment {
         });
     }
 
-    private void updateTuitionFromItems(List<TuitionItem> items) {
-        double totalDebt = 0;
-        for (TuitionItem item : items) {
-            totalDebt += item.getSoTien();
+    private void updateTuitionFromResponse(TuitionResponse response) {
+        long totalDebt = 0;
+        if (response.getSummary() != null) {
+            totalDebt = response.getSummary().getRemaining();
         }
 
         String debtText;
         if (totalDebt > 0) {
-            debtText = String.format("%,.0f₫", totalDebt);
+            debtText = String.format("%,d₫", totalDebt);
             tvTuitionDebt.setTextColor(ContextCompat.getColor(requireContext(), R.color.error_red));
         } else {
             debtText = "0₫";
             tvTuitionDebt.setTextColor(ContextCompat.getColor(requireContext(), R.color.foreground));
         }
         tvTuitionDebt.setText(debtText);
-        tvTuitionStatus.setText(items.size() > 0 ? "Đã cập nhật" : "Không có dữ liệu");
+
+        List<TuitionItem> items = response.getSemesters();
+        tvTuitionStatus.setText((items != null && items.size() > 0) ? "Đã cập nhật" : "Không có dữ liệu");
 
         String time = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(new Date());
         tvTuitionUpdated.setText("Cập nhật: " + time);

@@ -41,7 +41,7 @@ public class TuitionActivity extends AppCompatActivity {
 
     private void fetchTuitionData() {
         String token = preferenceManager.getToken();
-        RetrofitClient.getApiService().getTuition(token, null, null)
+        RetrofitClient.getApiService().getTuition("Bearer " + token, null, null)
                 .enqueue(new Callback<TuitionResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<TuitionResponse> call, @NonNull Response<TuitionResponse> response) {

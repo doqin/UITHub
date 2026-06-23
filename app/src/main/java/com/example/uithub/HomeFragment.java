@@ -135,18 +135,15 @@ public class HomeFragment extends Fragment {
     }
 
     private void updateTuitionDisplay(TuitionResponse tuitionResponse) {
-        List<TuitionItem> items = tuitionResponse.getSemesters();
-        double totalDebt = 0;
-        if (items != null) {
-            for (TuitionItem item : items) {
-                totalDebt += item.getSoTien();
-            }
+        long totalDebt = 0;
+        if (tuitionResponse.getSummary() != null) {
+            totalDebt = tuitionResponse.getSummary().getRemaining();
         }
 
         View cardHomeTuition = getView().findViewById(R.id.cardHomeTuition);
         String debtText;
         if (totalDebt > 0) {
-            debtText = String.format("%,.0f₫", totalDebt);
+            debtText = String.format("%,d₫", totalDebt);
             tvHomeTuitionDebt.setTextColor(ContextCompat.getColor(requireContext(), R.color.error_red));
             cardHomeTuition.setVisibility(View.VISIBLE);
         } else {
