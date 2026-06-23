@@ -7,9 +7,17 @@
     <item
         android:id="@+id/menu_schedule"
         android:icon="@drawable/baseline_access_time_filled_24"
-        android:title="@string/tkb" />
+        android:title="@string/schedule" />
+    <item
+        android:id="@+id/menu_study"
+        android:icon="@drawable/ic_school"
+        android:title="@string/study" />
     <item
         android:id="@+id/menu_announcement"
-        android:icon="@drawable/baseline_article_24"
+        android:icon="@drawable/ic_notifications"
         android:title="@string/thong_bao" />
+    <item
+        android:id="@+id/menu_profile"
+        android:icon="@drawable/ic_person"
+        android:title="@string/profile" />
 </menu>

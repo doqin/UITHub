@@ -50,14 +50,20 @@ public class MainActivity extends AppCompatActivity {
         bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            if (itemId == R.id.menu_schedule) {
+            if (itemId == R.id.menu_home) {
+                loadFragment(new HomeFragment());
+                return true;
+            } else if (itemId == R.id.menu_schedule) {
                 loadFragment(new ScheduleFragment());
+                return true;
+            } else if (itemId == R.id.menu_study) {
+                loadFragment(new StudyFragment());
                 return true;
             } else if (itemId == R.id.menu_announcement) {
                 loadFragment(new AnnouncementFragment());
                 return true;
-            } else if (itemId == R.id.menu_home) {
-                loadFragment(new HomeFragment());
+            } else if (itemId == R.id.menu_profile) {
+                loadFragment(new ProfileFragment());
                 return true;
             }
             return false;

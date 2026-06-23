@@ -1,5 +1,6 @@
 package com.example.uithub;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -7,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,13 +19,18 @@ import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.models.Announcement;
 import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.ScheduleItem;
+import com.example.uithub.models.TuitionItem;
+import com.example.uithub.models.TuitionResponse;
 import com.example.uithub.repository.MainRepository;
 import com.example.uithub.utils.JSONParser;
 import com.example.uithub.utils.PreferenceManager;
 import com.example.uithub.utils.ScheduleStatusUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -41,7 +48,14 @@ public class HomeFragment extends Fragment {
     private ProgressBar progressBar;
     private Call<ResponseBody> scheduleCall;
     private Call<AnnouncementResponse> announcementsCall;
+    private Call<TuitionResponse> tuitionCall;
     private int pendingLoads;
+
+    // Home widgets
+    private TextView tvHomeTuitionDebt, tvHomeTuitionUpdate;
+    private TextView tvHomeGpa, tvHomeCredits;
+    private View cardDeadline;
+    private TextView tvDeadlineText;
 
     public HomeFragment() {
         super(R.layout.fragment_home);
@@ -56,6 +70,20 @@ public class HomeFragment extends Fragment {
         todayClassesEmpty = view.findViewById(R.id.tvTodayClassesEmpty);
         announcementsEmpty = view.findViewById(R.id.tvRecentAnnouncementsEmpty);
 
+        // Home widgets
+        tvHomeTuitionDebt = view.findViewById(R.id.tvHomeTuitionDebt);
+        tvHomeTuitionUpdate = view.findViewById(R.id.tvHomeTuitionUpdate);
+        tvHomeGpa = view.findViewById(R.id.tvHomeGpa);
+        tvHomeCredits = view.findViewById(R.id.tvHomeCredits);
+        cardDeadline = view.findViewById(R.id.cardDeadline);
+        tvDeadlineText = view.findViewById(R.id.tvDeadlineText);
+
+        // Tuition card click -> open Tuition detail in Study context
+        view.findViewById(R.id.cardHomeTuition).setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), TuitionActivity.class);
+            startActivity(intent);
+        });
+
         RecyclerView todayClassesRecyclerView = view.findViewById(R.id.todayClassesRecyclerView);
         todayClassesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         todayClassesAdapter = new ScheduleItemAdapter(new ArrayList<>());
@@ -66,8 +94,69 @@ public class HomeFragment extends Fragment {
         announcementAdapter = new AnnouncementAdapter(new ArrayList<>());
         announcementsRecyclerView.setAdapter(announcementAdapter);
 
+        // Cache-first: show cached tuition immediately, then refresh in background
+        loadCachedTuition();
         loadTodayClasses();
         loadRecentAnnouncements();
+        refreshTuitionInBackground();
+    }
+
+    private void loadCachedTuition() {
+        String cached = preferenceManager.getTuitionJson();
+        if (cached != null && !cached.isEmpty()) {
+            long timestamp = preferenceManager.getTuitionTimestamp();
+            String timeText = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
+                    .format(new Date(timestamp));
+            tvHomeTuitionUpdate.setText("Cập nhật: " + timeText);
+            tvHomeTuitionDebt.setText("Đã lưu");
+        }
+    }
+
+    private void refreshTuitionInBackground() {
+        String token = preferenceManager.getToken();
+        if (token == null) return;
+
+        beginLoad();
+        tuitionCall = RetrofitClient.getApiService().getTuition("Bearer " + token, null, null);
+        tuitionCall.enqueue(new Callback<TuitionResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<TuitionResponse> call, @NonNull Response<TuitionResponse> response) {
+                finishLoad();
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    updateTuitionDisplay(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<TuitionResponse> call, @NonNull Throwable t) {
+                finishLoad();
+            }
+        });
+    }
+
+    private void updateTuitionDisplay(TuitionResponse tuitionResponse) {
+        List<TuitionItem> items = tuitionResponse.getSemesters();
+        double totalDebt = 0;
+        if (items != null) {
+            for (TuitionItem item : items) {
+                totalDebt += item.getSoTien();
+            }
+        }
+
+        View cardHomeTuition = getView().findViewById(R.id.cardHomeTuition);
+        String debtText;
+        if (totalDebt > 0) {
+            debtText = String.format("%,.0f₫", totalDebt);
+            tvHomeTuitionDebt.setTextColor(ContextCompat.getColor(requireContext(), R.color.error_red));
+            cardHomeTuition.setVisibility(View.VISIBLE);
+        } else {
+            debtText = "Đã thanh toán";
+            cardHomeTuition.setVisibility(View.GONE);
+        }
+        tvHomeTuitionDebt.setText(debtText);
+
+        String time = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault()).format(new Date());
+        tvHomeTuitionUpdate.setText("Cập nhật: " + time);
     }
 
     private void loadTodayClasses() {
@@ -82,7 +171,7 @@ public class HomeFragment extends Fragment {
         }
 
         beginLoad();
-        scheduleCall = RetrofitClient.getApiService().getSchedule("Bearer " + token);
+        scheduleCall = RetrofitClient.getApiService().getSchedule(token);
         scheduleCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -196,6 +285,9 @@ public class HomeFragment extends Fragment {
         }
         if (announcementsCall != null) {
             announcementsCall.cancel();
+        }
+        if (tuitionCall != null) {
+            tuitionCall.cancel();
         }
         super.onDestroyView();
     }

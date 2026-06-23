@@ -70,4 +70,6 @@
     <color name="outline_variant">#D7DEE8</color>
     <color name="primary_container">#D9E9F8</color>
     <color name="on_primary_container">#143A61</color>
+    <color name="error_red">#DC2626</color>
+    <color name="success_green">#16A34A</color>
 </resources>

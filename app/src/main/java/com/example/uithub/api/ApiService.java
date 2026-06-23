@@ -4,6 +4,7 @@ import com.example.uithub.models.AnnouncementDetailResponse;
 import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.LoginRequest;
 import com.example.uithub.models.TuitionItem;
+import com.example.uithub.models.TuitionResponse;
 import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -33,7 +34,7 @@ public interface ApiService {
             @Path("node_id") String nodeId
     );
     @GET("tuition/")
-    Call<List<TuitionItem>> getTuition(
+    Call<TuitionResponse> getTuition(
             @Header("Authorization") String authHeader,
             @Query("hocky") Integer hocky,
             @Query("namhoc") Integer namhoc
