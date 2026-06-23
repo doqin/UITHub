@@ -10,6 +10,8 @@ public class PreferenceManager {
     private static final String KEY_SCHEDULE_JSON = "schedule_json";
     private static final String KEY_TUITION_JSON = "tuition_json";
     private static final String KEY_TUITION_TIMESTAMP = "tuition_timestamp";
+    private static final String KEY_PROFILE_JSON = "profile_json";
+    private static final String KEY_PROFILE_TIMESTAMP = "profile_timestamp";
     private final SharedPreferences sharedPreferences;
 
     public PreferenceManager(Context context) {
@@ -51,6 +53,19 @@ public class PreferenceManager {
 
     public long getTuitionTimestamp() {
         return sharedPreferences.getLong(KEY_TUITION_TIMESTAMP, 0);
+    }
+
+    public void saveProfileJson(String profileJson) {
+        sharedPreferences.edit().putString(KEY_PROFILE_JSON, profileJson).apply();
+        sharedPreferences.edit().putLong(KEY_PROFILE_TIMESTAMP, System.currentTimeMillis()).apply();
+    }
+
+    public String getProfileJson() {
+        return sharedPreferences.getString(KEY_PROFILE_JSON, null);
+    }
+
+    public long getProfileTimestamp() {
+        return sharedPreferences.getLong(KEY_PROFILE_TIMESTAMP, 0);
     }
 
     public void clear() {
