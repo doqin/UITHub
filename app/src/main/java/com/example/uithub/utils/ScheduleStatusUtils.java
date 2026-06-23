@@ -22,6 +22,11 @@ public class ScheduleStatusUtils {
         return isOpenOnDate(item, LocalDate.now(), true, false);
     }
 
+    public static boolean isScheduledTodayRegardlessOfDate(ScheduleItem item) {
+        if (item == null || item.day == null) return false;
+        return item.day.equals(dayLabelFor(LocalDate.now().getDayOfWeek()));
+    }
+
     private static boolean isOpenOnDate(ScheduleItem item, LocalDate date, boolean requireMatchingDay, boolean fallback) {
         try {
             DateRange range = parseDateRange(item);
