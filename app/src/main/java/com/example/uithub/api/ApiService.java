@@ -3,6 +3,7 @@ package com.example.uithub.api;
 import com.example.uithub.models.AnnouncementDetailResponse;
 import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.LoginRequest;
+import com.example.uithub.models.StudentProfile;
 import com.example.uithub.models.TuitionItem;
 import com.example.uithub.models.TuitionResponse;
 import java.util.List;
@@ -39,4 +40,7 @@ public interface ApiService {
             @Query("hocky") Integer hocky,
             @Query("namhoc") Integer namhoc
     );
+
+    @GET("profile/")
+    Call<StudentProfile> getProfile(@Header("Authorization") String authHeader);
 }

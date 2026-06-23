@@ -28,7 +28,7 @@ import retrofit2.Response;
 public class StudyFragment extends Fragment {
 
     private PreferenceManager preferenceManager;
-    private TextView tvGpaValue, tvCreditProgress, tvAcademicAlert;
+    private TextView tvGpaValue, tvCreditProgress;
     private TextView tvTuitionDebt, tvTuitionUpdated, tvTuitionStatus;
     private ProgressBar creditProgressBar, progressBar;
     private Call<TuitionResponse> tuitionCall;
@@ -46,7 +46,6 @@ public class StudyFragment extends Fragment {
         tvGpaValue = view.findViewById(R.id.tvGpaValue);
         tvCreditProgress = view.findViewById(R.id.tvCreditProgress);
         creditProgressBar = view.findViewById(R.id.creditProgressBar);
-        tvAcademicAlert = view.findViewById(R.id.tvAcademicAlert);
         tvTuitionDebt = view.findViewById(R.id.tvTuitionDebt);
         tvTuitionUpdated = view.findViewById(R.id.tvTuitionUpdated);
         tvTuitionStatus = view.findViewById(R.id.tvTuitionStatus);
