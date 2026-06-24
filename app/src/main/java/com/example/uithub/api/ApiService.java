@@ -3,6 +3,9 @@ package com.example.uithub.api;
 import com.example.uithub.models.AnnouncementDetailResponse;
 import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.LoginRequest;
+import com.example.uithub.models.ExamModel;
+import com.example.uithub.models.ExamScheduleResponse;
+import java.util.List;
 import com.example.uithub.models.StudentProfile;
 import com.example.uithub.models.TuitionItem;
 import com.example.uithub.models.TuitionResponse;
@@ -33,6 +36,13 @@ public interface ApiService {
     @GET("announcements/{node_id}")
     Call<AnnouncementDetailResponse> getAnnouncementDetail(
             @Path("node_id") String nodeId
+    );
+    @GET("schedule/exam")
+    Call<ExamScheduleResponse> getExamSchedule(
+            @Header("Authorization") String authHeader,
+            @Query("lanthi") int lanthi,
+            @Query("hocky") int hocky,
+            @Query("namhoc") int namhoc
     );
     @GET("tuition/")
     Call<TuitionResponse> getTuition(

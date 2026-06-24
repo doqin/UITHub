@@ -1,0 +1,13 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_marginVertical="4dp"
+    android:background="@color/card">
+
+    <TextView android:id="@+id/tvExamSubject" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textStyle="bold" android:textColor="@color/primary" android:textSize="16sp"/>
+    <TextView android:id="@+id/tvExamClass" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/card_foreground"/>
+    <TextView android:id="@+id/tvExamTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/muted_foreground"/>
+    <TextView android:id="@+id/tvExamRoom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/foreground"/>
+</LinearLayout>

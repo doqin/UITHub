@@ -8,6 +8,7 @@ public class PreferenceManager {
     private static final String KEY_TOKEN = "access_token";
     private static final String KEY_MSSV = "mssv";
     private static final String KEY_SCHEDULE_JSON = "schedule_json";
+    private static final String KEY_EXAM_SCHEDULE_JSON = "exam_schedule_json";
     private static final String KEY_TUITION_JSON = "tuition_json";
     private static final String KEY_TUITION_TIMESTAMP = "tuition_timestamp";
     private static final String KEY_PROFILE_JSON = "profile_json";
@@ -40,6 +41,14 @@ public class PreferenceManager {
 
     public String getScheduleJson() {
         return sharedPreferences.getString(KEY_SCHEDULE_JSON, null);
+    }
+
+    public void saveExamScheduleJson(String examScheduleJson) {
+        sharedPreferences.edit().putString(KEY_EXAM_SCHEDULE_JSON, examScheduleJson).apply();
+    }
+
+    public String getExamScheduleJson() {
+        return sharedPreferences.getString(KEY_EXAM_SCHEDULE_JSON, null);
     }
 
     public void saveTuitionJson(String tuitionJson) {

@@ -14,47 +14,233 @@
         android:background="?attr/colorSurface"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Toggle: Lịch học / Lịch thi -->
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleGroup"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
-            android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="8dp"
-            android:baselineAligned="false">
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:background="@drawable/bg_segmented_bar"
-                app:tabMode="scrollable"
-                app:tabTextColor="?attr/colorOnSurfaceVariant"
-                app:tabSelectedTextColor="?attr/colorOnPrimaryContainer"
-                app:tabIndicatorHeight="0dp"
-                app:tabBackground="@drawable/tab_indicator"
-                app:tabRippleColor="@android:color/transparent" />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            app:singleSelection="true"
+            app:checkedButton="@+id/btnSchedule"
+            app:selectionRequired="true">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnReload"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_icon_button"
-                android:contentDescription="@string/reload_schedule"
-                app:icon="@drawable/ic_refresh_24"
-                app:iconTint="?attr/colorPrimary" />
-        </LinearLayout>
+                android:id="@+id/btnSchedule"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/schedule_daily"
+                android:textSize="14sp" />
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPager"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExam"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/exam_schedule"
+                android:textSize="14sp" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- Schedule (Lịch học) Container -->
+        <LinearLayout
+            android:id="@+id/scheduleContainer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurface"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="8dp"
+                android:baselineAligned="false">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_segmented_bar"
+                    app:tabMode="scrollable"
+                    app:tabTextColor="?attr/colorOnSurfaceVariant"
+                    app:tabSelectedTextColor="?attr/colorOnPrimaryContainer"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabBackground="@drawable/tab_indicator"
+                    app:tabRippleColor="@android:color/transparent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReload"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_icon_button"
+                    android:contentDescription="@string/reload_schedule"
+                    app:icon="@drawable/ic_refresh_24"
+                    app:iconTint="?attr/colorPrimary" />
+            </LinearLayout>
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Exam (Lịch thi) Container -->
+        <LinearLayout
+            android:id="@+id/examContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Dropdown filters -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="4dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Học kỳ"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="2dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilHocKy"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp"
+                        app:hintEnabled="false">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actHocKy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Năm học"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="2dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilNamHoc"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp"
+                        app:hintEnabled="false">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actNamHoc"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lần thi"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginBottom="2dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilLanThi"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="1dp"
+                        app:hintEnabled="false">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actLanThi"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Hint text when not all dropdowns selected -->
+            <TextView
+                android:id="@+id/tvExamHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Vui lòng chọn Học kỳ, Năm học và Lần thi để xem lịch thi"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:gravity="center"
+                android:paddingVertical="24dp"
+                android:visibility="gone" />
+
+            <!-- Exam RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvExamSchedule"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="?attr/colorSurface"
+                android:clipToPadding="false"
+                android:paddingTop="6dp"
+                android:paddingBottom="12dp" />
+        </LinearLayout>
 
     </LinearLayout>
 
