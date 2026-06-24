@@ -77,7 +77,43 @@ public class PreferenceManager {
         return sharedPreferences.getLong(KEY_PROFILE_TIMESTAMP, 0);
     }
 
+    public void saveCredentials(String username, String password) {
+        sharedPreferences.edit()
+                .putString("saved_username", username)
+                .putString("saved_password", password)
+                .putBoolean("remember_me", true)
+                .apply();
+    }
+
+    public void clearCredentials() {
+        sharedPreferences.edit()
+                .remove("saved_username")
+                .remove("saved_password")
+                .putBoolean("remember_me", false)
+                .apply();
+    }
+
+    public String getSavedUsername() {
+        return sharedPreferences.getString("saved_username", "");
+    }
+
+    public String getSavedPassword() {
+        return sharedPreferences.getString("saved_password", "");
+    }
+
+    public boolean isRememberMe() {
+        return sharedPreferences.getBoolean("remember_me", false);
+    }
+
     public void clear() {
+        boolean remember = isRememberMe();
+        String user = getSavedUsername();
+        String pass = getSavedPassword();
+
         sharedPreferences.edit().clear().commit();
+
+        if (remember) {
+            saveCredentials(user, pass);
+        }
     }
 }

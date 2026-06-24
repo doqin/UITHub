@@ -16,6 +16,16 @@ public class RetrofitClient {
 
     private static Retrofit retrofit = null;
 
+    public interface SessionListener {
+        void onSessionExpired();
+    }
+
+    private static SessionListener sessionListener;
+
+    public static void setSessionListener(SessionListener listener) {
+        sessionListener = listener;
+    }
+
     public static Retrofit getInstance() {
         if (retrofit == null) {
             OkHttpClient client = new OkHttpClient.Builder()
@@ -24,6 +34,19 @@ public class RetrofitClient {
                     .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .callTimeout(CALL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .retryOnConnectionFailure(true)
+                    .addInterceptor(chain -> {
+                        okhttp3.Response response = chain.proceed(chain.request());
+                        if (response.code() == 401) {
+                            if (sessionListener != null) {
+                                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                                    if (sessionListener != null) {
+                                        sessionListener.onSessionExpired();
+                                    }
+                                });
+                            }
+                        }
+                        return response;
+                    })
                     .build();
 
             retrofit = new Retrofit.Builder()

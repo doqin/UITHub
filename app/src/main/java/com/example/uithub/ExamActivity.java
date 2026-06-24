@@ -16,7 +16,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ExamActivity extends AppCompatActivity {
+public class ExamActivity extends BaseActivity {
     private RecyclerView rvExam;
 
     @Override

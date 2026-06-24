@@ -25,6 +25,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.uithub.adapter.DeadlineAdapter;
+import com.example.uithub.models.DeadlineResponse;
+
 public class StudyFragment extends Fragment {
 
     private PreferenceManager preferenceManager;
@@ -32,6 +36,12 @@ public class StudyFragment extends Fragment {
     private TextView tvTuitionDebt, tvTuitionUpdated, tvTuitionStatus;
     private ProgressBar creditProgressBar, progressBar;
     private Call<TuitionResponse> tuitionCall;
+
+    private RecyclerView rvDeadlines;
+    private TextView tvDeadlineRefresh, tvDeadlineEmpty;
+    private ProgressBar deadlineProgressBar;
+    private DeadlineAdapter deadlineAdapter;
+    private Call<DeadlineResponse> deadlineCall;
 
     public StudyFragment() {
         super(R.layout.fragment_study);
@@ -51,14 +61,61 @@ public class StudyFragment extends Fragment {
         tvTuitionStatus = view.findViewById(R.id.tvTuitionStatus);
         progressBar = view.findViewById(R.id.studyProgressBar);
 
+        rvDeadlines = view.findViewById(R.id.rvDeadlines);
+        tvDeadlineRefresh = view.findViewById(R.id.tvDeadlineRefresh);
+        tvDeadlineEmpty = view.findViewById(R.id.tvDeadlineEmpty);
+        deadlineProgressBar = view.findViewById(R.id.deadlineProgressBar);
+
         // Tuition card click -> open TuitionActivity
         view.findViewById(R.id.cardTuitionSummary).setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), TuitionActivity.class));
         });
 
+        tvDeadlineRefresh.setOnClickListener(v -> loadDeadlines(true));
+
+        deadlineAdapter = new DeadlineAdapter(requireContext(), null);
+        rvDeadlines.setAdapter(deadlineAdapter);
+
         // Load data
         loadCachedTuition();
         loadTuitionData();
+        loadDeadlines(false);
+    }
+
+    private void loadDeadlines(boolean refresh) {
+        String token = preferenceManager.getToken();
+        if (token == null) return;
+
+        deadlineProgressBar.setVisibility(View.VISIBLE);
+        tvDeadlineEmpty.setVisibility(View.GONE);
+        rvDeadlines.setVisibility(View.GONE);
+
+        deadlineCall = RetrofitClient.getApiService().getDeadlines("Bearer " + token, null, null, refresh);
+        deadlineCall.enqueue(new Callback<DeadlineResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<DeadlineResponse> call, @NonNull Response<DeadlineResponse> response) {
+                deadlineProgressBar.setVisibility(View.GONE);
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    List<com.example.uithub.models.Deadline> deadlines = response.body().getData();
+                    if (deadlines != null && !deadlines.isEmpty()) {
+                        deadlineAdapter.setDeadlines(deadlines);
+                        rvDeadlines.setVisibility(View.VISIBLE);
+                    } else {
+                        tvDeadlineEmpty.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    tvDeadlineEmpty.setVisibility(View.VISIBLE);
+                    tvDeadlineEmpty.setText("Không thể tải dữ liệu bài tập.");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<DeadlineResponse> call, @NonNull Throwable t) {
+                deadlineProgressBar.setVisibility(View.GONE);
+                tvDeadlineEmpty.setVisibility(View.VISIBLE);
+                tvDeadlineEmpty.setText("Lỗi kết nối.");
+            }
+        });
     }
 
     private void loadCachedTuition() {
@@ -126,6 +183,9 @@ public class StudyFragment extends Fragment {
     public void onDestroyView() {
         if (tuitionCall != null) {
             tuitionCall.cancel();
+        }
+        if (deadlineCall != null) {
+            deadlineCall.cancel();
         }
         super.onDestroyView();
     }
