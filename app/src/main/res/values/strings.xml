@@ -30,6 +30,7 @@
     <string name="account_title">Tài khoản</string>
     <string name="settings_title">Cài đặt</string>
     <string name="schedule">Lịch</string>
+    <string name="schedule_daily">Lịch học</string>
     <string name="exam_schedule">Lịch thi</string>
     <string name="google_calendar_sync">Đồng bộ Google Calendar</string>
     <string name="student_info">Thông tin sinh viên</string>

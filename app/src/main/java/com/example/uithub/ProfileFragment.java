@@ -2,6 +2,7 @@ package com.example.uithub;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -28,8 +29,11 @@ public class ProfileFragment extends Fragment {
 
     private PreferenceManager preferenceManager;
     private ProgressBar progressBar;
+    private View profileSkeleton;
+    private View scrollContent;
     private Call<StudentProfile> profileCall;
     private boolean isProfileExpanded = false;
+    private boolean dataLoaded = false;
 
     public ProfileFragment() {
         super(R.layout.fragment_profile);
@@ -42,6 +46,12 @@ public class ProfileFragment extends Fragment {
         preferenceManager = new PreferenceManager(requireContext());
 
         progressBar = view.findViewById(R.id.profileProgressBar);
+        profileSkeleton = view.findViewById(R.id.profileSkeleton);
+        scrollContent = view.findViewById(R.id.scrollContent);
+
+        // Show skeleton while loading
+        profileSkeleton.setVisibility(View.VISIBLE);
+        scrollContent.setVisibility(View.GONE);
 
         // Set student info
         TextView tvStudentName = view.findViewById(R.id.tvStudentName);
@@ -54,10 +64,13 @@ public class ProfileFragment extends Fragment {
         }
 
         // Load cached profile first
-        loadCachedProfile();
-
-        // Fetch fresh profile from API
-        loadProfile();
+        if (!loadCachedProfile()) {
+            // If no cache, start loading from API
+            loadProfile();
+        } else {
+            // Cache loaded, also fetch from API for refresh
+            loadProfile();
+        }
 
         // Toggle profile details
         view.findViewById(R.id.btnProfileInfo).setOnClickListener(v -> {
@@ -81,15 +94,23 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void loadCachedProfile() {
-        String cached = preferenceManager.getProfileJson();
-        if (cached != null && !cached.isEmpty()) {
-            try {
-                // Simple parsing - extract key fields from cached JSON
-                // For now, just show that we have cached data
-                updateLastUpdatedTime();
-            } catch (Exception ignored) {}
+    private boolean loadCachedProfile() {
+        String cachedJson = preferenceManager.getProfileJson();
+        if (cachedJson == null || cachedJson.isEmpty()) {
+            return false;
         }
+
+        try {
+            com.google.gson.Gson gson = new com.google.gson.Gson();
+            StudentProfile cachedProfile = gson.fromJson(cachedJson, StudentProfile.class);
+            if (cachedProfile != null && cachedProfile.getHoTen() != null) {
+                updateProfileUi(cachedProfile);
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e("ProfileFragment", "Error parsing cached profile", e);
+        }
+        return false;
     }
 
     private void loadProfile() {
@@ -103,19 +124,37 @@ public class ProfileFragment extends Fragment {
             public void onResponse(@NonNull Call<StudentProfile> call, @NonNull Response<StudentProfile> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
-                    preferenceManager.saveProfileJson(profileToJson(response.body()));
+                    com.google.gson.Gson gson = new com.google.gson.Gson();
+                    preferenceManager.saveProfileJson(gson.toJson(response.body()));
                     updateProfileUi(response.body());
+                } else {
+                    // If API fails and we already showed data, keep it
+                    if (!dataLoaded) {
+                        profileSkeleton.setVisibility(View.GONE);
+                        scrollContent.setVisibility(View.VISIBLE);
+                    }
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<StudentProfile> call, @NonNull Throwable t) {
                 progressBar.setVisibility(View.GONE);
+                // If no data loaded yet, hide skeleton and show content (with placeholders)
+                if (!dataLoaded) {
+                    profileSkeleton.setVisibility(View.GONE);
+                    scrollContent.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
 
     private void updateProfileUi(StudentProfile profile) {
+        dataLoaded = true;
+
+        // Hide skeleton, show real content
+        profileSkeleton.setVisibility(View.GONE);
+        scrollContent.setVisibility(View.VISIBLE);
+
         TextView tvStudentName = getView().findViewById(R.id.tvStudentName);
         TextView tvStudentId = getView().findViewById(R.id.tvStudentId);
         TextView tvDob = getView().findViewById(R.id.tvDob);
@@ -166,22 +205,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private String profileToJson(StudentProfile profile) {
-        return String.format(
-            "{\"ho_ten\":\"%s\",\"mssv\":\"%s\",\"ngay_sinh\":\"%s\",\"gioi_tinh\":\"%s\"," +
-            "\"lop_sinh_hoat\":\"%s\",\"khoa\":\"%s\",\"bac_dao_tao\":\"%s\"," +
-            "\"he_dao_tao\":\"%s\",\"nganh\":\"%s\"}",
-            profile.getHoTen() != null ? profile.getHoTen() : "",
-            profile.getMssv() != null ? profile.getMssv() : "",
-            profile.getNgaySinh() != null ? profile.getNgaySinh() : "",
-            profile.getGioiTinh() != null ? profile.getGioiTinh() : "",
-            profile.getLopSinhHoat() != null ? profile.getLopSinhHoat() : "",
-            profile.getKhoa() != null ? profile.getKhoa() : "",
-            profile.getBacDaoTao() != null ? profile.getBacDaoTao() : "",
-            profile.getHeDaoTao() != null ? profile.getHeDaoTao() : "",
-            profile.getNganh() != null ? profile.getNganh() : ""
-        );
-    }
+    // Removed profileToJson - using Gson instead
 
     @Override
     public void onDestroyView() {

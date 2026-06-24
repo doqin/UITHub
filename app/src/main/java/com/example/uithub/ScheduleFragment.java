@@ -1,28 +1,76 @@
 package com.example.uithub;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.uithub.adapter.ExamScheduleAdapter;
 import com.example.uithub.adapter.SchedulePagerAdapter;
+import com.example.uithub.api.RetrofitClient;
+import com.example.uithub.models.ExamModel;
+import com.example.uithub.models.ExamScheduleResponse;
 import com.example.uithub.models.ScheduleItem;
 import com.example.uithub.utils.JSONParser;
+import com.example.uithub.utils.PreferenceManager;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ScheduleFragment extends Fragment {
 
+    private static final String TAG = "ScheduleFragment";
+
     private SchedulePagerAdapter adapter;
     private Map<String, List<ScheduleItem>> map;
+
+    // Exam-related
+    private ExamScheduleAdapter examAdapter;
+    private Call<ExamScheduleResponse> examCall;
+    private Call<ResponseBody> scheduleCall;
+    private PreferenceManager preferenceManager;
+
+    // UI
+    private MaterialButtonToggleGroup toggleGroup;
+    private View scheduleContainer, examContainer;
+    private ProgressBar progressBar;
+    private View btnReload;
+    private TextView tvExamHint;
+
+    // Schedule views
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
+
+    // Dropdowns
+    private com.google.android.material.textfield.MaterialAutoCompleteTextView actHocKy, actNamHoc, actLanThi;
+
+    // Selected values
+    private int selectedHocKy = -1;
+    private int selectedNamHoc = -1;
+    private int selectedLanThi = -1;
 
     public ScheduleFragment() {
         super(R.layout.fragment_schedule);
@@ -32,138 +80,344 @@ public class ScheduleFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        preferenceManager = new PreferenceManager(requireContext());
+
         // UI
-        TabLayout tabLayout = view.findViewById(R.id.tabLayout);
-        ViewPager2 viewPager = view.findViewById(R.id.viewPager);
+        toggleGroup = view.findViewById(R.id.toggleGroup);
+        scheduleContainer = view.findViewById(R.id.scheduleContainer);
+        examContainer = view.findViewById(R.id.examContainer);
+        progressBar = view.findViewById(R.id.progressBar);
+        btnReload = view.findViewById(R.id.btnReload);
+        tvExamHint = view.findViewById(R.id.tvExamHint);
+
+        // Schedule views
+        tabLayout = view.findViewById(R.id.tabLayout);
+        viewPager = view.findViewById(R.id.viewPager);
 
         adapter = new SchedulePagerAdapter(this);
         viewPager.setAdapter(adapter);
 
-        loadData(tabLayout, viewPager);
+        // Load cached schedule first, then fetch from API
+        loadScheduleFromCache(tabLayout, viewPager);
+        loadScheduleFromApi(tabLayout, viewPager);
+
+        // Refresh button
+        btnReload.setOnClickListener(v -> {
+            Log.d(TAG, "Refresh button clicked, reloading schedule...");
+            loadScheduleFromApi(tabLayout, viewPager);
+        });
+
+        // Exam views
+        RecyclerView rvExam = view.findViewById(R.id.rvExamSchedule);
+        rvExam.setLayoutManager(new LinearLayoutManager(getContext()));
+        examAdapter = new ExamScheduleAdapter(new ArrayList<>());
+        rvExam.setAdapter(examAdapter);
+
+        // Setup dropdowns
+        setupExamDropdowns(view);
+
+        // Toggle listener
+        toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) return;
+            if (checkedId == R.id.btnSchedule) {
+                scheduleContainer.setVisibility(View.VISIBLE);
+                examContainer.setVisibility(View.GONE);
+                Log.d(TAG, "Switched to schedule tab");
+            } else {
+                scheduleContainer.setVisibility(View.GONE);
+                examContainer.setVisibility(View.VISIBLE);
+                Log.d(TAG, "Switched to exam tab");
+                updateExamHintVisibility();
+                if (selectedHocKy != -1 && selectedNamHoc != -1 && selectedLanThi != -1) {
+                    loadExamSchedule();
+                }
+            }
+        });
     }
 
-    private void loadData(TabLayout tabLayout, ViewPager2 viewPager) {
-        try {
-//            thay TEST_JSON bang response cua API
-            String json = "{\n" +
-                    "    \"success\": true,\n" +
-                    "    \"count\": 7,\n" +
-                    "    \"data\": [\n" +
-                    "        {\n" +
-                    "            \"day\": \"Thứ 2\",\n" +
-                    "            \"period\": \"Tiết 1-3\",\n" +
-                    "            \"time\": \"07:30-09:45\",\n" +
-                    "            \"start_time\": \"07:30\",\n" +
-                    "            \"end_time\": \"09:45\",\n" +
-                    "            \"start_date\": \"26/01/26\",\n" +
-                    "            \"end_date\": \"30/05/26\",\n" +
-                    "            \"code\": \"SE101.Q21\",\n" +
-                    "            \"name\": \"Phương pháp mô hình hóa - VN\",\n" +
-                    "            \"room\": \"P. C302\",\n" +
-                    "            \"teacher\": \"80056 - Nguyễn Công Hoan\",\n" +
-                    "            \"date\": \"26/01/26 -> 30/05/26\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"day\": \"Thứ 4\",\n" +
-                    "            \"period\": \"Tiết 1-3\",\n" +
-                    "            \"time\": \"07:30-09:45\",\n" +
-                    "            \"start_time\": \"07:30\",\n" +
-                    "            \"end_time\": \"09:45\",\n" +
-                    "            \"start_date\": \"26/01/26\",\n" +
-                    "            \"end_date\": \"25/04/26\",\n" +
-                    "            \"code\": \"SS004.Q25\",\n" +
-                    "            \"name\": \"Kỹ năng nghề nghiệp - VN\",\n" +
-                    "            \"room\": \"P. B3.14\",\n" +
-                    "            \"teacher\": \"80209 - Lê Thanh Trọng\",\n" +
-                    "            \"date\": \"26/01/26 -> 25/04/26\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"day\": \"Thứ 5\",\n" +
-                    "            \"period\": \"Tiết 1-3\",\n" +
-                    "            \"time\": \"07:30-09:45\",\n" +
-                    "            \"start_time\": \"07:30\",\n" +
-                    "            \"end_time\": \"09:45\",\n" +
-                    "            \"start_date\": \"26/01/26\",\n" +
-                    "            \"end_date\": \"30/05/26\",\n" +
-                    "            \"code\": \"SE104.Q26\",\n" +
-                    "            \"name\": \"Nhập môn Công nghệ phần mềm - VN\",\n" +
-                    "            \"room\": \"P. C202\",\n" +
-                    "            \"teacher\": \"80198 - Huỳnh Ngọc Tín\",\n" +
-                    "            \"date\": \"26/01/26 -> 30/05/26\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"day\": \"Thứ 2\",\n" +
-                    "            \"period\": \"Tiết 4-5\",\n" +
-                    "            \"time\": \"10:00-11:30\",\n" +
-                    "            \"start_time\": \"10:00\",\n" +
-                    "            \"end_time\": \"11:30\",\n" +
-                    "            \"start_date\": \"26/01/26\",\n" +
-                    "            \"end_date\": \"30/05/26\",\n" +
-                    "            \"code\": \"SS003.Q22\",\n" +
-                    "            \"name\": \"Tư tưởng Hồ Chí Minh - VN\",\n" +
-                    "            \"room\": \"P. B1.14\",\n" +
-                    "            \"teacher\": \"10072 - Phạm Thị Thu Hương\",\n" +
-                    "            \"date\": \"26/01/26 -> 30/05/26\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"day\": \"Thứ 4\",\n" +
-                    "            \"period\": \"Tiết 4-5\",\n" +
-                    "            \"time\": \"10:00-11:30\",\n" +
-                    "            \"start_time\": \"10:00\",\n" +
-                    "            \"end_time\": \"11:30\",\n" +
-                    "            \"start_date\": \"26/01/26\",\n" +
-                    "            \"end_date\": \"30/05/26\",\n" +
-                    "            \"code\": \"SS008.Q22\",\n" +
-                    "            \"name\": \"Kinh tế chính trị Mác – Lênin - VN\",\n" +
-                    "            \"room\": \"P. B4.14\",\n" +
-                    "            \"teacher\": \"10774 - Hà Thị Việt Thúy\",\n" +
-                    "            \"date\": \"26/01/26 -> 30/05/26\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"day\": \"Thứ 3\",\n" +
-                    "            \"period\": \"Tiết 6-9\",\n" +
-                    "            \"time\": \"13:00-16:15\",\n" +
-                    "            \"start_time\": \"13:00\",\n" +
-                    "            \"end_time\": \"16:15\",\n" +
-                    "            \"start_date\": \"26/01/26\",\n" +
-                    "            \"end_date\": \"06/06/26\",\n" +
-                    "            \"code\": \"SE114.Q21\",\n" +
-                    "            \"name\": \"Nhập môn ứng dụng di động - VN\",\n" +
-                    "            \"room\": \"P. C302  - Cách 2 tuần\",\n" +
-                    "            \"teacher\": \"80320 - Nguyễn Tấn Toàn\",\n" +
-                    "            \"date\": \"26/01/26 -> 06/06/26\"\n" +
-                    "        },\n" +
-                    "        {\n" +
-                    "            \"day\": \"Thứ 4\",\n" +
-                    "            \"period\": \"Tiết 6-7\",\n" +
-                    "            \"time\": \"13:00-14:30\",\n" +
-                    "            \"start_time\": \"13:00\",\n" +
-                    "            \"end_time\": \"14:30\",\n" +
-                    "            \"start_date\": \"26/01/26\",\n" +
-                    "            \"end_date\": \"30/05/26\",\n" +
-                    "            \"code\": \"SS009.Q25\",\n" +
-                    "            \"name\": \"Chủ nghĩa xã hội khoa học - VN\",\n" +
-                    "            \"room\": \"P. B4.14\",\n" +
-                    "            \"teacher\": \"10917 - Nguyễn Thị Bích Cần\",\n" +
-                    "            \"date\": \"26/01/26 -> 30/05/26\"\n" +
-                    "        }\n" +
-                    "    ]\n" +
-                    "}";
+    private void updateExamHintVisibility() {
+        boolean allSelected = selectedHocKy != -1 && selectedNamHoc != -1 && selectedLanThi != -1;
+        tvExamHint.setVisibility(allSelected ? View.GONE : View.VISIBLE);
+    }
 
-            List<ScheduleItem> list = JSONParser.parseSchedule(json);
+    private void setupExamDropdowns(View view) {
+        actHocKy = view.findViewById(R.id.actHocKy);
+        actNamHoc = view.findViewById(R.id.actNamHoc);
+        actLanThi = view.findViewById(R.id.actLanThi);
+
+        // Học kỳ: 1, 2
+        String[] hocKyValues = {"1", "2"};
+        ArrayAdapter<String> hocKyAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line, hocKyValues);
+        actHocKy.setAdapter(hocKyAdapter);
+            actHocKy.setOnItemClickListener((parent, v, position, id) -> {
+            selectedHocKy = Integer.parseInt(hocKyValues[position]);
+            actHocKy.setText(hocKyValues[position], false);
+            Log.d(TAG, "Selected hocKy=" + selectedHocKy);
+            updateExamHintVisibility();
+            if (examContainer.getVisibility() == View.VISIBLE && selectedHocKy != -1 && selectedNamHoc != -1 && selectedLanThi != -1) {
+                loadExamSchedule();
+            }
+        });
+
+        // Năm học: 2024-2027
+        String[] namHocValues = {"2024", "2025", "2026", "2027"};
+        ArrayAdapter<String> namHocAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line, namHocValues);
+        actNamHoc.setAdapter(namHocAdapter);
+        actNamHoc.setOnItemClickListener((parent, v, position, id) -> {
+            selectedNamHoc = Integer.parseInt(namHocValues[position]);
+            actNamHoc.setText(namHocValues[position], false);
+            Log.d(TAG, "Selected namHoc=" + selectedNamHoc);
+            updateExamHintVisibility();
+            if (examContainer.getVisibility() == View.VISIBLE && selectedHocKy != -1 && selectedNamHoc != -1 && selectedLanThi != -1) {
+                loadExamSchedule();
+            }
+        });
+
+        // Lần thi: 1, 2
+        String[] lanThiValues = {"1", "2"};
+        ArrayAdapter<String> lanThiAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_dropdown_item_1line, lanThiValues);
+        actLanThi.setAdapter(lanThiAdapter);
+        actLanThi.setOnItemClickListener((parent, v, position, id) -> {
+            selectedLanThi = Integer.parseInt(lanThiValues[position]);
+            actLanThi.setText(lanThiValues[position], false);
+            Log.d(TAG, "Selected lanThi=" + selectedLanThi);
+            updateExamHintVisibility();
+            if (examContainer.getVisibility() == View.VISIBLE && selectedHocKy != -1 && selectedNamHoc != -1 && selectedLanThi != -1) {
+                loadExamSchedule();
+            }
+        });
+    }
+
+    private void loadScheduleFromCache(TabLayout tabLayout, ViewPager2 viewPager) {
+        String cachedJson = preferenceManager.getScheduleJson();
+        if (cachedJson == null) return;
+
+        try {
+            List<ScheduleItem> list = JSONParser.parseSchedule(cachedJson);
+            if (list.isEmpty()) return;
 
             map = JSONParser.groupByDay(list);
-
             adapter.setData(map);
 
             List<String> days = new ArrayList<>(map.keySet());
+            Log.d(TAG, "Schedule loaded from cache: " + list.size() + " items across " + days.size() + " days");
 
             new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                 tab.setText(days.get(position));
             }).attach();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error parsing cached schedule JSON", e);
         }
+    }
+
+    private void loadScheduleFromApi(TabLayout tabLayout, ViewPager2 viewPager) {
+        String token = preferenceManager.getToken();
+        if (token == null) {
+            Log.e(TAG, "Cannot load schedule: token is null");
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập trước", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+        Log.d(TAG, "Fetching schedule from API...");
+
+        // Cancel previous call if any
+        if (scheduleCall != null) {
+            scheduleCall.cancel();
+        }
+
+        scheduleCall = RetrofitClient.getApiService().getSchedule("Bearer " + token);
+        scheduleCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                progressBar.setVisibility(View.GONE);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String json = response.body().string();
+                        Log.d(TAG, "Schedule API response received, length=" + json.length());
+
+                        // Cache the raw JSON
+                        preferenceManager.saveScheduleJson(json);
+
+                        List<ScheduleItem> list = JSONParser.parseSchedule(json);
+                        map = JSONParser.groupByDay(list);
+                        adapter.setData(map);
+
+                        List<String> days = new ArrayList<>(map.keySet());
+                        Log.d(TAG, "Schedule loaded successfully: " + list.size() + " items across " + days.size() + " days");
+
+                        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+                            tab.setText(days.get(position));
+                        }).attach();
+
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing schedule JSON", e);
+                        Toast.makeText(requireContext(), "Lỗi xử lý dữ liệu lịch học", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    int statusCode = response.code();
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (IOException ignored) {}
+                    Log.e(TAG, "Schedule API error: HTTP " + statusCode + " - " + errorBody);
+
+                    // If we have cached data, don't show error toast for failed refresh
+                    String cachedJson = preferenceManager.getScheduleJson();
+                    if (cachedJson == null) {
+                        Toast.makeText(requireContext(), "Lỗi tải lịch học (Mã: " + statusCode + ")", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Log.e(TAG, "Schedule API network failure: " + t.getMessage(), t);
+
+                // Only show error if no cached data
+                String cachedJson = preferenceManager.getScheduleJson();
+                if (cachedJson == null) {
+                    Toast.makeText(requireContext(), "Lỗi mạng: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void loadExamSchedule() {
+        // Should not be called unless all are selected, but check just in case
+        if (selectedHocKy == -1 || selectedNamHoc == -1 || selectedLanThi == -1) {
+            return;
+        }
+
+        String token = preferenceManager.getToken();
+        if (token == null) {
+            Log.e(TAG, "Cannot load exam schedule: token is null");
+            Toast.makeText(requireContext(), "Vui lòng đăng nhập trước", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Log.d(TAG, "Loading exam schedule: HK=" + selectedHocKy + ", Nam=" + selectedNamHoc + ", Lan=" + selectedLanThi);
+
+        // Try loading from cache first
+        String cacheKey = "exam_" + selectedLanThi + "_" + selectedHocKy + "_" + selectedNamHoc;
+        loadExamFromCache(cacheKey);
+
+        // Cancel previous call
+        if (examCall != null) {
+            examCall.cancel();
+        }
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        examCall = RetrofitClient.getApiService().getExamSchedule(
+                "Bearer " + token,
+                selectedLanThi,
+                selectedHocKy,
+                selectedNamHoc
+        );
+
+        examCall.enqueue(new Callback<ExamScheduleResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<ExamScheduleResponse> call, @NonNull Response<ExamScheduleResponse> response) {
+                progressBar.setVisibility(View.GONE);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    ExamScheduleResponse body = response.body();
+                    if (body.isSuccess()) {
+                        // Cache the exam schedule as JSON
+                        Gson gson = new Gson();
+                        preferenceManager.saveExamScheduleJson(gson.toJson(body));
+
+                        List<ExamModel> exams = body.getData();
+                        if (exams != null && !exams.isEmpty()) {
+                            // Sort: UPCOMING first, then COMPLETED; within same status, sort by exam_date ascending
+                            Collections.sort(exams, (a, b) -> {
+                                if (!a.getStatus().equals(b.getStatus())) {
+                                    return a.getStatus().equals("UPCOMING") ? -1 : 1;
+                                }
+                                return a.getExam_date().compareTo(b.getExam_date());
+                            });
+                            examAdapter.setData(exams);
+                            Log.d(TAG, "Exam schedule loaded successfully: " + exams.size() + " exams" +
+                                    (body.isCached() ? " (cached)" : ""));
+                        } else {
+                            Log.w(TAG, "Exam schedule loaded but data is empty");
+                            examAdapter.setData(new ArrayList<>());
+                            Toast.makeText(requireContext(), "Không có lịch thi cho kỳ này", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.e(TAG, "Exam schedule API returned success=false");
+                        Toast.makeText(requireContext(), "Không thể tải lịch thi", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    int statusCode = response.code();
+                    String errorBody = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            errorBody = response.errorBody().string();
+                        }
+                    } catch (IOException ignored) {}
+                    Log.e(TAG, "Exam schedule API error: HTTP " + statusCode + " - " + errorBody);
+
+                    // Only show error if no cached data was displayed
+                    if (examAdapter.getItemCount() == 0) {
+                        Toast.makeText(requireContext(), "Lỗi tải lịch thi (Mã: " + statusCode + ")", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ExamScheduleResponse> call, @NonNull Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                Log.e(TAG, "Exam schedule network failure: " + t.getMessage(), t);
+
+                if (examAdapter.getItemCount() == 0) {
+                    Toast.makeText(requireContext(), "Lỗi mạng: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void loadExamFromCache(String cacheKey) {
+        String cachedJson = preferenceManager.getExamScheduleJson();
+        if (cachedJson == null) return;
+
+        try {
+            Gson gson = new Gson();
+            ExamScheduleResponse cachedResponse = gson.fromJson(cachedJson, ExamScheduleResponse.class);
+            List<ExamModel> exams = cachedResponse.getData();
+
+            if (exams != null && !exams.isEmpty()) {
+                Collections.sort(exams, (a, b) -> {
+                    if (!a.getStatus().equals(b.getStatus())) {
+                        return a.getStatus().equals("UPCOMING") ? -1 : 1;
+                    }
+                    return a.getExam_date().compareTo(b.getExam_date());
+                });
+                examAdapter.setData(exams);
+                Log.d(TAG, "Exam schedule loaded from cache: " + exams.size() + " exams");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing cached exam schedule", e);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        if (examCall != null) {
+            examCall.cancel();
+        }
+        if (scheduleCall != null) {
+            scheduleCall.cancel();
+        }
+        super.onDestroyView();
     }
 }

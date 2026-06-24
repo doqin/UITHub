@@ -34,10 +34,10 @@ public class ExamAdapter extends RecyclerView.Adapter<ExamAdapter.ExamViewHolder
     @Override
     public void onBindViewHolder(ExamViewHolder holder, int position) {
         ExamModel item = examList.get(position);
-        holder.tvSubject.setText(item.getMa_mh());
-        holder.tvClass.setText("Lớp: " + item.getMa_lop());
-        holder.tvTime.setText("Ngày: " + item.getNgay_thi() + " - " + item.getCa_tiet_thi());
-        holder.tvRoom.setText("Phòng thi: " + item.getPhong_thi());
+        holder.tvSubject.setText(item.getCourse_code());
+        holder.tvClass.setText("Lớp: " + item.getClass_code());
+        holder.tvTime.setText("Ngày: " + item.getExam_date() + " - " + item.getExam_shift());
+        holder.tvRoom.setText("Phòng thi: " + item.getRoom());
     }
 
     @Override

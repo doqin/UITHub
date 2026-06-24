@@ -4,6 +4,7 @@ import com.example.uithub.models.AnnouncementDetailResponse;
 import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.LoginRequest;
 import com.example.uithub.models.ExamModel;
+import com.example.uithub.models.ExamScheduleResponse;
 import java.util.List;
 import com.example.uithub.models.StudentProfile;
 import com.example.uithub.models.TuitionItem;
@@ -36,8 +37,13 @@ public interface ApiService {
     Call<AnnouncementDetailResponse> getAnnouncementDetail(
             @Path("node_id") String nodeId
     );
-    @GET("schedule/exam_schedule")
-    Call<List<ExamModel>> getExamSchedule(@Header("Authorization") String authHeader);
+    @GET("schedule/exam")
+    Call<ExamScheduleResponse> getExamSchedule(
+            @Header("Authorization") String authHeader,
+            @Query("lanthi") int lanthi,
+            @Query("hocky") int hocky,
+            @Query("namhoc") int namhoc
+    );
     @GET("tuition/")
     Call<TuitionResponse> getTuition(
             @Header("Authorization") String authHeader,

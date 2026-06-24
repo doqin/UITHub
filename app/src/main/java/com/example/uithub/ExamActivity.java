@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.uithub.adapter.ExamAdapter;
 import com.example.uithub.api.ApiService;
 import com.example.uithub.models.ExamModel;
+import com.example.uithub.models.ExamScheduleResponse;
 import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.utils.PreferenceManager;
 import java.util.List;
@@ -34,11 +35,12 @@ public class ExamActivity extends AppCompatActivity {
 
         ApiService api = RetrofitClient.getInstance().create(ApiService.class);
 
-        api.getExamSchedule("Bearer " + token).enqueue(new Callback<List<ExamModel>>() {
+        api.getExamSchedule("Bearer " + token, 1, 1, 2025).enqueue(new Callback<ExamScheduleResponse>() {
             @Override
-            public void onResponse(Call<List<ExamModel>> call, Response<List<ExamModel>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ExamAdapter adapter = new ExamAdapter(response.body());
+            public void onResponse(Call<ExamScheduleResponse> call, Response<ExamScheduleResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    List<ExamModel> list = response.body().getData();
+                    ExamAdapter adapter = new ExamAdapter(list);
                     rvExam.setAdapter(adapter);
                 } else {
                     Toast.makeText(ExamActivity.this, "Không tải được lịch thi", Toast.LENGTH_SHORT).show();
@@ -46,7 +48,7 @@ public class ExamActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<ExamModel>> call, Throwable t) {
+            public void onFailure(Call<ExamScheduleResponse> call, Throwable t) {
                 Toast.makeText(ExamActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
