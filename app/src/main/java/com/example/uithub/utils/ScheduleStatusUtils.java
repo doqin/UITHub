@@ -22,10 +22,16 @@ public class ScheduleStatusUtils {
         return isOpenOnDate(item, LocalDate.now(), true, false);
     }
 
+    public static boolean isScheduledTodayRegardlessOfDate(ScheduleItem item) {
+        if (item == null || item.day == null) return false;
+        return item.day.equals(dayLabelFor(LocalDate.now().getDayOfWeek()));
+    }
+
     private static boolean isOpenOnDate(ScheduleItem item, LocalDate date, boolean requireMatchingDay, boolean fallback) {
         try {
-            LocalDate startDate = LocalDate.parse(item.start_date, SCHEDULE_DATE_FORMATTER);
-            LocalDate endDate = LocalDate.parse(item.end_date, SCHEDULE_DATE_FORMATTER);
+            DateRange range = parseDateRange(item);
+            LocalDate startDate = range.start;
+            LocalDate endDate = range.end;
 
             if (date.isBefore(startDate) || date.isAfter(endDate)) {
                 return false;
@@ -75,5 +81,37 @@ public class ScheduleStatusUtils {
 
     private static boolean containsBiweeklyMarker(String value) {
         return value != null && value.contains("Cách 2 tuần");
+    }
+
+    private static DateRange parseDateRange(ScheduleItem item) {
+        String dateStr = item.date;
+        if (dateStr != null && dateStr.contains(" -> ")) {
+            try {
+                String[] parts = dateStr.split(" -> ");
+                LocalDate start = LocalDate.parse(parts[0].trim(), SCHEDULE_DATE_FORMATTER);
+                LocalDate end = LocalDate.parse(parts[1].trim(), SCHEDULE_DATE_FORMATTER);
+                return new DateRange(start, end);
+            } catch (DateTimeParseException e) {
+                // Fall through to legacy parsing
+            }
+        }
+
+        try {
+            LocalDate start = LocalDate.parse(item.start_date, SCHEDULE_DATE_FORMATTER);
+            LocalDate end = LocalDate.parse(item.end_date, SCHEDULE_DATE_FORMATTER);
+            return new DateRange(start, end);
+        } catch (DateTimeParseException | NullPointerException e) {
+            return new DateRange(LocalDate.MIN, LocalDate.MAX);
+        }
+    }
+
+    private static class DateRange {
+        LocalDate start;
+        LocalDate end;
+
+        DateRange(LocalDate start, LocalDate end) {
+            this.start = start;
+            this.end = end;
+        }
     }
 }

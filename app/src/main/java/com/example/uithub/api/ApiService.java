@@ -5,6 +5,10 @@ import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.LoginRequest;
 import com.example.uithub.models.ExamModel;
 import java.util.List;
+import com.example.uithub.models.StudentProfile;
+import com.example.uithub.models.TuitionItem;
+import com.example.uithub.models.TuitionResponse;
+import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -34,4 +38,13 @@ public interface ApiService {
     );
     @GET("schedule/exam_schedule")
     Call<List<ExamModel>> getExamSchedule(@Header("Authorization") String authHeader);
+    @GET("tuition/")
+    Call<TuitionResponse> getTuition(
+            @Header("Authorization") String authHeader,
+            @Query("hocky") Integer hocky,
+            @Query("namhoc") Integer namhoc
+    );
+
+    @GET("profile/")
+    Call<StudentProfile> getProfile(@Header("Authorization") String authHeader);
 }
