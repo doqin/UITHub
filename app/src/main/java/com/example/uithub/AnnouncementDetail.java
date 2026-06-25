@@ -29,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AnnouncementDetail extends AppCompatActivity {
+public class AnnouncementDetail extends BaseActivity {
 
     private TextView titleText;
     private TextView contentText;

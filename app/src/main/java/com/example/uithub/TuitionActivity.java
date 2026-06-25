@@ -17,7 +17,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TuitionActivity extends AppCompatActivity {
+public class TuitionActivity extends BaseActivity {
     private RecyclerView rvTuition;
     private PreferenceManager preferenceManager;
     private TextView tvStudentName, tvStudentId, tvTotalPaid, tvRemaining;

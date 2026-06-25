@@ -30,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText etUsername, etPassword;
     private Button btnLogin;
     private View progressBar;
+    private com.google.android.material.checkbox.MaterialCheckBox cbRememberMe;
     private PreferenceManager preferenceManager;
     private Call<ResponseBody> loginCall;
 
@@ -49,6 +50,13 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
         progressBar = findViewById(R.id.progressBar);
+        cbRememberMe = findViewById(R.id.cbRememberMe);
+
+        if (preferenceManager.isRememberMe()) {
+            cbRememberMe.setChecked(true);
+            etUsername.setText(preferenceManager.getSavedUsername());
+            etPassword.setText(preferenceManager.getSavedPassword());
+        }
 
         btnLogin.setOnClickListener(v -> login());
     }
@@ -98,6 +106,11 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d("LoginActivity", "Final token length: " + (token != null ? token.length() : "null"));
                         if (token != null && !token.isEmpty()) {
                             preferenceManager.saveToken(token);
+                            if (cbRememberMe.isChecked()) {
+                                preferenceManager.saveCredentials(username, password);
+                            } else {
+                                preferenceManager.clearCredentials();
+                            }
                             Log.d("LoginActivity", "Token saved successfully");
                             startMainActivity();
                         } else {

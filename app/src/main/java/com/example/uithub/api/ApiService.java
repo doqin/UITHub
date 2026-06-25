@@ -5,6 +5,7 @@ import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.LoginRequest;
 import com.example.uithub.models.ExamModel;
 import com.example.uithub.models.ExamScheduleResponse;
+import com.example.uithub.models.DeadlineResponse;
 import java.util.List;
 import com.example.uithub.models.StudentProfile;
 import com.example.uithub.models.TuitionItem;
@@ -53,4 +54,12 @@ public interface ApiService {
 
     @GET("profile/")
     Call<StudentProfile> getProfile(@Header("Authorization") String authHeader);
+
+    @GET("deadlines/")
+    Call<DeadlineResponse> getDeadlines(
+            @Header("Authorization") String authHeader,
+            @Query("year") Integer year,
+            @Query("month") Integer month,
+            @Query("refresh") Boolean refresh
+    );
 }
