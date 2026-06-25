@@ -1,10 +1,14 @@
 package com.example.uithub.adapter;
 
+import android.content.Intent;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -12,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.uithub.R;
 import com.example.uithub.models.ExamModel;
+import com.example.uithub.utils.CalendarUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -99,8 +104,28 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
             holder.tvDaysRemaining.setText("Đã qua " + Math.abs(days) + " ngày");
             holder.tvDaysRemaining.setVisibility(View.VISIBLE);
         }
-    }
+        holder.btnOpenCalendar.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(CalendarContract.CONTENT_URI);
+            v.getContext().startActivity(intent);
+        });
 
+        holder.btnSyncCalendar.setOnClickListener(v -> {
+            long start = convertToMillis(item.getExam_date(), item.getStart_time());
+            long end = start + (2 * 60 * 60 * 1000);
+            CalendarUtils.addEvent(v.getContext(), "Thi: " + item.getCourse_code(), item.getRoom(), start, end);
+            Toast.makeText(v.getContext(), "Đang mở lịch...", Toast.LENGTH_SHORT).show();
+        });
+    }
+    private long convertToMillis(String date, String time) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            Date d = sdf.parse(date + " " + time);
+            return d != null ? d.getTime() : System.currentTimeMillis();
+        } catch (Exception e) {
+            return System.currentTimeMillis();
+        }
+    }
     private int calculateDaysRemaining(String examDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -123,7 +148,7 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvCourseCode, tvClassCode, tvExamShift, tvExamDate, tvExamTime, tvExamRoom, tvExamStatus, tvDaysRemaining;
-
+        ImageView btnOpenCalendar, btnSyncCalendar;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCourseCode = itemView.findViewById(R.id.tvCourseCode);
@@ -134,6 +159,8 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
             tvExamRoom = itemView.findViewById(R.id.tvExamRoom);
             tvExamStatus = itemView.findViewById(R.id.tvExamStatus);
             tvDaysRemaining = itemView.findViewById(R.id.tvDaysRemaining);
+            btnOpenCalendar = itemView.findViewById(R.id.btnOpenCalendar);
+            btnSyncCalendar = itemView.findViewById(R.id.btnSyncCalendar);
         }
     }
 }
