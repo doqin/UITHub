@@ -1,5 +1,6 @@
 package com.example.uithub.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,15 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
 
         holder.tvCourseCode.setText(item.getCourse_code());
         holder.tvClassCode.setText(item.getClass_code());
-        holder.tvExamShift.setText(item.getExam_shift());
+
+        // Exam shift - if null/empty, show fallback
+        String examShift = item.getExam_shift();
+        if (examShift != null && !examShift.isEmpty()) {
+            holder.tvExamShift.setText(examShift);
+            holder.tvExamShift.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvExamShift.setVisibility(View.GONE);
+        }
 
         // Format date: YYYY-MM-DD -> weekday DD/MM
         String dateStr = item.getExam_date();
@@ -58,25 +67,28 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
             holder.tvExamDate.setText(weekday + " " + dateStr);
         }
 
-        holder.tvExamTime.setText(item.getStart_time() + " - " + item.getEnd_time());
+        Log.d("ExamAdapter", "start_time='" + item.getStart_time() + "' for course=" + item.getCourse_code());
+        String startTime = item.getStart_time();
+        if (startTime != null && !startTime.isEmpty()) {
+            holder.tvExamTime.setText(startTime);
+        } else {
+            holder.tvExamTime.setText("Theo thông báo của giảng viên");
+        }
         holder.tvExamRoom.setText(item.getRoom());
 
-        // Status
-        String status = item.getStatus();
-        if (status != null) {
-            if ("UPCOMING".equals(status)) {
-                holder.tvExamStatus.setText("Sắp thi");
-                holder.tvExamStatus.setTextColor(
-                        ContextCompat.getColor(holder.itemView.getContext(), R.color.success_green));
-            } else {
-                holder.tvExamStatus.setText("Đã thi");
-                holder.tvExamStatus.setTextColor(
-                        ContextCompat.getColor(holder.itemView.getContext(), R.color.muted_foreground));
-            }
+        // Status - computed locally using exam_date
+        int days = calculateDaysRemaining(item.getExam_date());
+        if (days >= 0) {
+            holder.tvExamStatus.setText("Sắp thi");
+            holder.tvExamStatus.setTextColor(
+                    ContextCompat.getColor(holder.itemView.getContext(), R.color.success_green));
+        } else {
+            holder.tvExamStatus.setText("Đã thi");
+            holder.tvExamStatus.setTextColor(
+                    ContextCompat.getColor(holder.itemView.getContext(), R.color.muted_foreground));
         }
 
-        // Days remaining - calculate locally using exam_date to avoid server timezone issues
-        int days = calculateDaysRemaining(item.getExam_date());
+        // Days remaining - calculate locally using exam_date
         if (days > 0) {
             holder.tvDaysRemaining.setText(days + " ngày nữa");
             holder.tvDaysRemaining.setVisibility(View.VISIBLE);

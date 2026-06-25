@@ -192,7 +192,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Lần thi"
+                        android:text="Kì thi"
                         android:textSize="12sp"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginStart="4dp"

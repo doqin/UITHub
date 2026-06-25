@@ -34,7 +34,7 @@ public class StudyFragment extends Fragment {
     private PreferenceManager preferenceManager;
     private TextView tvGpaValue, tvCreditProgress;
     private TextView tvTuitionDebt, tvTuitionUpdated, tvTuitionStatus;
-    private ProgressBar creditProgressBar, progressBar;
+    private ProgressBar creditProgressBar;
     private Call<TuitionResponse> tuitionCall;
 
     private RecyclerView rvDeadlines;
@@ -59,7 +59,6 @@ public class StudyFragment extends Fragment {
         tvTuitionDebt = view.findViewById(R.id.tvTuitionDebt);
         tvTuitionUpdated = view.findViewById(R.id.tvTuitionUpdated);
         tvTuitionStatus = view.findViewById(R.id.tvTuitionStatus);
-        progressBar = view.findViewById(R.id.studyProgressBar);
 
         rvDeadlines = view.findViewById(R.id.rvDeadlines);
         tvDeadlineRefresh = view.findViewById(R.id.tvDeadlineRefresh);
@@ -132,12 +131,10 @@ public class StudyFragment extends Fragment {
         String token = preferenceManager.getToken();
         if (token == null) return;
 
-        progressBar.setVisibility(View.VISIBLE);
         tuitionCall = RetrofitClient.getApiService().getTuition("Bearer " + token, null, null);
         tuitionCall.enqueue(new Callback<TuitionResponse>() {
             @Override
             public void onResponse(@NonNull Call<TuitionResponse> call, @NonNull Response<TuitionResponse> response) {
-                progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     updateTuitionFromResponse(response.body());
                 }
@@ -145,7 +142,6 @@ public class StudyFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Call<TuitionResponse> call, @NonNull Throwable t) {
-                progressBar.setVisibility(View.GONE);
             }
         });
     }

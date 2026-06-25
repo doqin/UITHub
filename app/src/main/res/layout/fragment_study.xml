@@ -227,11 +227,4 @@
         </LinearLayout>
     </ScrollView>
 
-    <ProgressBar
-        android:id="@+id/studyProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminateTint="?attr/colorPrimary"
-        android:visibility="gone" />
 </FrameLayout>
