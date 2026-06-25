@@ -23,17 +23,20 @@ import com.example.uithub.models.ExamScheduleResponse;
 import com.example.uithub.models.ScheduleItem;
 import com.example.uithub.utils.JSONParser;
 import com.example.uithub.utils.PreferenceManager;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -150,7 +153,7 @@ public class ScheduleFragment extends Fragment {
         ArrayAdapter<String> hocKyAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line, hocKyValues);
         actHocKy.setAdapter(hocKyAdapter);
-            actHocKy.setOnItemClickListener((parent, v, position, id) -> {
+        actHocKy.setOnItemClickListener((parent, v, position, id) -> {
             selectedHocKy = Integer.parseInt(hocKyValues[position]);
             actHocKy.setText(hocKyValues[position], false);
             Log.d(TAG, "Selected hocKy=" + selectedHocKy);
@@ -175,14 +178,16 @@ public class ScheduleFragment extends Fragment {
             }
         });
 
-        // Lần thi: 1, 2
-        String[] lanThiValues = {"1", "2"};
+        // Kì thi: GK, CK
+        String[] lanThiValues = {"GK", "CK"};
         ArrayAdapter<String> lanThiAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line, lanThiValues);
         actLanThi.setAdapter(lanThiAdapter);
         actLanThi.setOnItemClickListener((parent, v, position, id) -> {
-            selectedLanThi = Integer.parseInt(lanThiValues[position]);
-            actLanThi.setText(lanThiValues[position], false);
+            String selected = lanThiValues[position];
+            // GK -> 1, CK -> 2
+            selectedLanThi = "GK".equals(selected) ? 1 : 2;
+            actLanThi.setText(selected, false);
             Log.d(TAG, "Selected lanThi=" + selectedLanThi);
             updateExamHintVisibility();
             if (examContainer.getVisibility() == View.VISIBLE && selectedHocKy != -1 && selectedNamHoc != -1 && selectedLanThi != -1) {
@@ -266,7 +271,8 @@ public class ScheduleFragment extends Fragment {
                         if (response.errorBody() != null) {
                             errorBody = response.errorBody().string();
                         }
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                    }
                     Log.e(TAG, "Schedule API error: HTTP " + statusCode + " - " + errorBody);
 
                     // If we have cached data, don't show error toast for failed refresh
@@ -340,8 +346,10 @@ public class ScheduleFragment extends Fragment {
                         if (exams != null && !exams.isEmpty()) {
                             // Sort: UPCOMING first, then COMPLETED; within same status, sort by exam_date ascending
                             Collections.sort(exams, (a, b) -> {
-                                if (!a.getStatus().equals(b.getStatus())) {
-                                    return a.getStatus().equals("UPCOMING") ? -1 : 1;
+                                boolean aUpcoming = isUpcoming(a.getExam_date());
+                                boolean bUpcoming = isUpcoming(b.getExam_date());
+                                if (aUpcoming != bUpcoming) {
+                                    return aUpcoming ? -1 : 1;
                                 }
                                 return a.getExam_date().compareTo(b.getExam_date());
                             });
@@ -364,7 +372,8 @@ public class ScheduleFragment extends Fragment {
                         if (response.errorBody() != null) {
                             errorBody = response.errorBody().string();
                         }
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                    }
                     Log.e(TAG, "Exam schedule API error: HTTP " + statusCode + " - " + errorBody);
 
                     // Only show error if no cached data was displayed
@@ -397,8 +406,10 @@ public class ScheduleFragment extends Fragment {
 
             if (exams != null && !exams.isEmpty()) {
                 Collections.sort(exams, (a, b) -> {
-                    if (!a.getStatus().equals(b.getStatus())) {
-                        return a.getStatus().equals("UPCOMING") ? -1 : 1;
+                    boolean aUpcoming = isUpcoming(a.getExam_date());
+                    boolean bUpcoming = isUpcoming(b.getExam_date());
+                    if (aUpcoming != bUpcoming) {
+                        return aUpcoming ? -1 : 1;
                     }
                     return a.getExam_date().compareTo(b.getExam_date());
                 });
@@ -407,6 +418,22 @@ public class ScheduleFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e(TAG, "Error parsing cached exam schedule", e);
+        }
+    }
+
+    /**
+     * Determines if an exam is upcoming (exam_date is today or in the future).
+     */
+    private boolean isUpcoming(String examDate) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+            Date exam = sdf.parse(examDate);
+            Date now = new Date();
+            return exam != null && !exam.before(now);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
