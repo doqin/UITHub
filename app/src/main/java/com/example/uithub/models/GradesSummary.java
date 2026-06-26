@@ -2,7 +2,7 @@ package com.example.uithub.models;
 
 import com.google.gson.annotations.SerializedName;
 
-public class gitGradesSummary {
+public class GradesSummary {
     @SerializedName("diem_trung_binh_chung_tich_luy")
     private double gpaTichLuy;
 

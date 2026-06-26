@@ -21,6 +21,8 @@ import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.models.ScheduleItem;
 import com.example.uithub.models.TuitionItem;
 import com.example.uithub.models.TuitionResponse;
+import com.example.uithub.models.GradesResponse;
+import com.example.uithub.models.GradesSummary;
 import com.example.uithub.repository.MainRepository;
 import com.example.uithub.utils.JSONParser;
 import com.example.uithub.utils.PreferenceManager;
@@ -98,6 +100,7 @@ public class HomeFragment extends Fragment {
         loadCachedTuition();
         loadTodayClasses();
         loadRecentAnnouncements();
+        loadGpa();
         refreshTuitionInBackground();
     }
 
@@ -262,6 +265,38 @@ public class HomeFragment extends Fragment {
 
         announcementAdapter.setData(recent);
         announcementsEmpty.setVisibility(recent.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void loadGpa() {
+        String token = preferenceManager.getToken();
+        android.util.Log.d("HomeFragment", "Fetching GPA with token: " + (token != null ? "exists" : "null"));
+
+        RetrofitClient.getApiService().getGrades("Bearer " + token, null, null)
+                .enqueue(new Callback<GradesResponse>() {
+                    @Override
+                    public void onResponse(Call<GradesResponse> call, Response<GradesResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            android.util.Log.d("HomeFragment", "GPA API Success: " + response.body().isSuccess());
+                            if (response.body().getData() != null && response.body().getData().getSummary() != null) {
+                                GradesSummary summary = response.body().getData().getSummary();
+                                android.util.Log.d("HomeFragment", "GPA: " + summary.getGpaTichLuy() + ", Credits: " + summary.getTinChiTichLuy());
+
+                                tvHomeGpa.setText(String.format(Locale.getDefault(), "GPA: %.2f", summary.getGpaTichLuy()));
+
+                                tvHomeCredits.setText(String.format(Locale.getDefault(), "Tín chỉ: %.0f", summary.getTinChiTichLuy()));
+                            } else {
+                                android.util.Log.w("HomeFragment", "GPA Data or Summary is null");
+                            }
+                        } else {
+                            android.util.Log.e("HomeFragment", "GPA API Error: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<GradesResponse> call, Throwable t) {
+                        android.util.Log.e("HomeFragment", "GPA API Failure: " + t.getMessage());
+                    }
+                });
     }
 
     private void beginLoad() {
