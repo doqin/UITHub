@@ -10,6 +10,7 @@ import java.util.List;
 import com.example.uithub.models.StudentProfile;
 import com.example.uithub.models.TuitionItem;
 import com.example.uithub.models.TuitionResponse;
+import com.example.uithub.models.GradesResponse;
 import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -61,5 +62,12 @@ public interface ApiService {
             @Query("year") Integer year,
             @Query("month") Integer month,
             @Query("refresh") Boolean refresh
+    );
+
+    @GET("grades")
+    Call<GradesResponse> getGrades(
+            @Header("Authorization") String authHeader,
+            @Query("hocky") Integer hocky,
+            @Query("namhoc") Integer namhoc
     );
 }

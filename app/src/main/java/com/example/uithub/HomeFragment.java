@@ -253,7 +253,6 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-
     private void showRecentAnnouncements(List<Announcement> announcements) {
         List<Announcement> recent = new ArrayList<>();
         if (announcements != null) {
