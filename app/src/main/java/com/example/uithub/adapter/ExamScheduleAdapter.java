@@ -26,7 +26,12 @@ import java.util.TimeZone;
 
 public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapter.ViewHolder> {
 
+    public interface OnExamCalendarSyncListener {
+        void onSync(String title, String location, String description, long beginTime, long endTime);
+    }
+
     private List<ExamModel> list;
+    private OnExamCalendarSyncListener calendarSyncListener;
 
     public ExamScheduleAdapter(List<ExamModel> list) {
         this.list = list;
@@ -35,6 +40,14 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
     public void setData(List<ExamModel> newList) {
         this.list = newList;
         notifyDataSetChanged();
+    }
+
+    public void setOnCalendarSyncListener(OnExamCalendarSyncListener listener) {
+        this.calendarSyncListener = listener;
+    }
+
+    public List<ExamModel> getData() {
+        return list;
     }
 
     @NonNull
@@ -104,18 +117,6 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
             holder.tvDaysRemaining.setText("Đã qua " + Math.abs(days) + " ngày");
             holder.tvDaysRemaining.setVisibility(View.VISIBLE);
         }
-        holder.btnOpenCalendar.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(CalendarContract.CONTENT_URI);
-            v.getContext().startActivity(intent);
-        });
-
-        holder.btnSyncCalendar.setOnClickListener(v -> {
-            long start = convertToMillis(item.getExam_date(), item.getStart_time());
-            long end = start + (2 * 60 * 60 * 1000);
-            CalendarUtils.addEvent(v.getContext(), "Thi: " + item.getCourse_code(), item.getRoom(), start, end);
-            Toast.makeText(v.getContext(), "Đang mở lịch...", Toast.LENGTH_SHORT).show();
-        });
     }
     private long convertToMillis(String date, String time) {
         try {
@@ -148,7 +149,6 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvCourseCode, tvClassCode, tvExamShift, tvExamDate, tvExamTime, tvExamRoom, tvExamStatus, tvDaysRemaining;
-        ImageView btnOpenCalendar, btnSyncCalendar;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCourseCode = itemView.findViewById(R.id.tvCourseCode);
@@ -159,8 +159,6 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
             tvExamRoom = itemView.findViewById(R.id.tvExamRoom);
             tvExamStatus = itemView.findViewById(R.id.tvExamStatus);
             tvDaysRemaining = itemView.findViewById(R.id.tvDaysRemaining);
-            btnOpenCalendar = itemView.findViewById(R.id.btnOpenCalendar);
-            btnSyncCalendar = itemView.findViewById(R.id.btnSyncCalendar);
         }
     }
 }

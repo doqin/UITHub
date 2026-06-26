@@ -42,8 +42,19 @@ public class ScheduleDayFragment extends Fragment {
         List<ScheduleItem> list =
                 (List<ScheduleItem>) getArguments().getSerializable("data");
 
+        ScheduleItemAdapter adapter = new ScheduleItemAdapter(list);
+        adapter.setOnCalendarSyncListener((title, location, description,
+                                            vietnameseDay, dateStr, endDateStr,
+                                            beginTime, endTime) -> {
+            ScheduleFragment parent = (ScheduleFragment) getParentFragment();
+            if (parent != null) {
+                parent.addCalendarEvent(title, location, description,
+                        vietnameseDay, dateStr, endDateStr, beginTime, endTime);
+            }
+        });
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new ScheduleItemAdapter(list));
+        recyclerView.setAdapter(adapter);
 
         return view;
     }

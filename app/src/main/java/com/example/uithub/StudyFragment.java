@@ -65,7 +65,7 @@ public class StudyFragment extends Fragment {
         tvDeadlineEmpty = view.findViewById(R.id.tvDeadlineEmpty);
         deadlineProgressBar = view.findViewById(R.id.deadlineProgressBar);
 
-        // Tuition card click -> open TuitionActivity
+        // Nhấp vào thẻ học phí -> mở TuitionActivity
         view.findViewById(R.id.cardTuitionSummary).setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), TuitionActivity.class));
         });
@@ -75,7 +75,7 @@ public class StudyFragment extends Fragment {
         deadlineAdapter = new DeadlineAdapter(requireContext(), null);
         rvDeadlines.setAdapter(deadlineAdapter);
 
-        // Load data
+        // Tải dữ liệu
         loadCachedTuition();
         loadTuitionData();
         loadDeadlines(false);
@@ -120,9 +120,9 @@ public class StudyFragment extends Fragment {
     private void loadCachedTuition() {
         String cached = preferenceManager.getTuitionJson();
         if (cached != null && !cached.isEmpty()) {
-            try {
-                // Parse cached tuition data
-                updateTuitionUi(cached);
+                try {
+                    // Phân tích dữ liệu học phí đã cache
+                    updateTuitionUi(cached);
             } catch (Exception ignored) {}
         }
     }
@@ -170,8 +170,8 @@ public class StudyFragment extends Fragment {
     }
 
     private void updateTuitionUi(String cachedJson) {
-        // TODO: Parse cached JSON and update UI
-        // For now, just show cached status
+        // TODO: Phân tích JSON cache và cập nhật UI
+        // Tạm thời chỉ hiển thị trạng thái cache
         tvTuitionUpdated.setText("Đã lưu");
     }
 
