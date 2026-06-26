@@ -1,5 +1,7 @@
 package com.example.uithub;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -8,8 +10,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +26,7 @@ import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.models.ExamModel;
 import com.example.uithub.models.ExamScheduleResponse;
 import com.example.uithub.models.ScheduleItem;
+import com.example.uithub.utils.CalendarUtils;
 import com.example.uithub.utils.JSONParser;
 import com.example.uithub.utils.PreferenceManager;
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -60,8 +66,9 @@ public class ScheduleFragment extends Fragment {
     private MaterialButtonToggleGroup toggleGroup;
     private View scheduleContainer, examContainer;
     private ProgressBar progressBar;
-    private View btnReload;
+    private View btnReload, btnSyncAll;
     private TextView tvExamHint;
+    private View btnSyncAllExams;
 
     // Schedule views
     private TabLayout tabLayout;
@@ -74,6 +81,30 @@ public class ScheduleFragment extends Fragment {
     private int selectedHocKy = -1;
     private int selectedNamHoc = -1;
     private int selectedLanThi = -1;
+
+    // Pending calendar event data (saved while permission is being requested)
+    private String pendingTitle;
+    private String pendingLocation;
+    private String pendingDescription;
+    private long pendingBeginTime;
+    private long pendingEndTime;
+    private String pendingDay;
+    private String pendingDate;
+    private String pendingEndDate;
+    private boolean pendingIsExam;
+
+    // Calendar permission launcher
+    private final ActivityResultLauncher<String[]> calendarPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                Boolean readGranted = result.getOrDefault(Manifest.permission.READ_CALENDAR, false);
+                Boolean writeGranted = result.getOrDefault(Manifest.permission.WRITE_CALENDAR, false);
+                if (Boolean.TRUE.equals(readGranted) && Boolean.TRUE.equals(writeGranted)) {
+                    Log.d(TAG, "Calendar permissions granted, executing pending event");
+                    executePendingCalendarAction();
+                } else {
+                    Toast.makeText(requireContext(), "Cần cấp quyền lịch để đồng bộ", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     public ScheduleFragment() {
         super(R.layout.fragment_schedule);
@@ -91,6 +122,7 @@ public class ScheduleFragment extends Fragment {
         examContainer = view.findViewById(R.id.examContainer);
         progressBar = view.findViewById(R.id.progressBar);
         btnReload = view.findViewById(R.id.btnReload);
+        btnSyncAll = view.findViewById(R.id.btnSyncAll);
         tvExamHint = view.findViewById(R.id.tvExamHint);
 
         // Schedule views
@@ -110,10 +142,26 @@ public class ScheduleFragment extends Fragment {
             loadScheduleFromApi(tabLayout, viewPager);
         });
 
+        // Sync All button
+        btnSyncAll.setOnClickListener(v -> {
+            syncAllScheduleToCalendar();
+        });
+
+        // Sync All Exams button - only visible when exams are loaded
+        btnSyncAllExams = view.findViewById(R.id.btnSyncAllExams);
+        btnSyncAllExams.setOnClickListener(v -> {
+            syncAllExamsToCalendar();
+        });
+        // Initially hidden, shown when exams load
+        btnSyncAllExams.setVisibility(View.GONE);
+
         // Exam views
         RecyclerView rvExam = view.findViewById(R.id.rvExamSchedule);
         rvExam.setLayoutManager(new LinearLayoutManager(getContext()));
         examAdapter = new ExamScheduleAdapter(new ArrayList<>());
+        examAdapter.setOnCalendarSyncListener((title, location, description, beginTime, endTime) -> {
+            addCalendarEvent(title, location, description, beginTime, endTime, true);
+        });
         rvExam.setAdapter(examAdapter);
 
         // Setup dropdowns
@@ -136,6 +184,221 @@ public class ScheduleFragment extends Fragment {
                 }
             }
         });
+    }
+
+
+    private void syncAllScheduleToCalendar() {
+        // Collect all items from map
+        List<ScheduleItem> allItems = new ArrayList<>();
+        if (map != null) {
+            for (List<ScheduleItem> items : map.values()) {
+                allItems.addAll(items);
+            }
+        }
+        if (allItems.isEmpty()) {
+            Toast.makeText(requireContext(), "Không có lịch học để đồng bộ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Prepare event data
+        List<CalendarUtils.EventData> events = new ArrayList<>();
+        for (ScheduleItem item : allItems) {
+            String effectiveDate = item.start_date;
+            long start = CalendarUtils.convertToMillis(effectiveDate, item.start_time);
+            long end = CalendarUtils.convertToMillis(effectiveDate, item.end_time);
+            String title = item.code + " - " + item.room;
+            String description = "Lớp: " + item.code + "\n" +
+                    "(" + item.name + ")\n" +
+                    "- " + item.room + ",\n" +
+                    item.day + ",\n" +
+                    "Tiết " + item.period + ",\n" +
+                    "Giảng viên: " + item.teacher + ",\n" +
+                    "từ " + item.start_date + " - " + item.end_date;
+            boolean biWeekly = CalendarUtils.isBiWeekly(item.room);
+            String rrule = CalendarUtils.buildRRule(item.day, item.end_date, biWeekly);
+            Log.d(TAG, "syncAll: title=" + title + " date=" + effectiveDate + " start=" + start + " end=" + end + " rrule=" + rrule);
+            events.add(new CalendarUtils.EventData(title, item.room, description, start, end, rrule));
+        }
+
+        // Check permission and sync
+        if (checkCalendarPermission()) {
+            CalendarUtils.BatchInsertResult result = CalendarUtils.insertEventsBatch(requireContext(), events);
+            Log.d(TAG, "syncAllScheduleToCalendar: inserted " + result.inserted + "/" + result.getTotal());
+            
+            // Show appropriate message based on results
+            if (result.duplicates > 0 && result.inserted == 0) {
+                // All events are duplicates
+                Toast.makeText(requireContext(), "Lịch đã tồn tại trong Calendar", Toast.LENGTH_SHORT).show();
+            } else if (result.duplicates > 0 && result.inserted > 0) {
+                // Some duplicates, some inserted
+                Toast.makeText(requireContext(), "Đã đồng bộ " + result.inserted + "/" + result.getTotal() + " lịch. " + result.duplicates + " lịch đã tồn tại.", Toast.LENGTH_SHORT).show();
+            } else {
+                // All inserted successfully
+                Toast.makeText(requireContext(), "Đã xuất lịch thành công. Các sự kiện có thể mất vài phút để hiển thị trên Calendar.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Save events as pending and set flag
+            pendingEvents = events;
+            pendingSyncAll = true;
+            Log.d(TAG, "syncAllScheduleToCalendar: saving " + events.size() + " events as pending, requesting permission");
+            requestCalendarPermission();
+        }
+    }
+
+
+    private void syncAllExamsToCalendar() {
+        List<ExamModel> exams = examAdapter.getData();
+        if (exams == null || exams.isEmpty()) {
+            Toast.makeText(requireContext(), "Không có lịch thi để đồng bộ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<CalendarUtils.EventData> events = new ArrayList<>();
+        for (ExamModel exam : exams) {
+            // Prefer exam_datetime if available, otherwise use start_time or default to 07:00
+            String timeStr = exam.getStart_time();
+            if (timeStr == null || timeStr.isEmpty()) {
+                timeStr = "07:00"; // default exam time
+            }
+            long start = convertToMillis(exam.getExam_date(), timeStr);
+            long end = start + (2 * 60 * 60 * 1000); // 2 hours default
+            String title = exam.getCourse_code() + " - " + exam.getRoom();
+            String description = "Môn: " + exam.getCourse_code() + "\n" +
+                    "Lớp: " + exam.getClass_code() + "\n" +
+                    "Ca thi: " + (exam.getExam_shift() != null ? exam.getExam_shift() : "N/A") + "\n" +
+                    "Ngày: " + exam.getExam_date() + " (" + exam.getWeekday() + ")\n" +
+                    "Phòng: " + exam.getRoom();
+            events.add(new CalendarUtils.EventData(title, exam.getRoom(), description, start, end, null));
+        }
+
+        if (checkCalendarPermission()) {
+            CalendarUtils.BatchInsertResult result = CalendarUtils.insertEventsBatch(requireContext(), events);
+            
+            // Show appropriate message based on results
+            if (result.duplicates > 0 && result.inserted == 0) {
+                // All events are duplicates
+                Toast.makeText(requireContext(), "Lịch đã tồn tại trong Calendar", Toast.LENGTH_SHORT).show();
+            } else if (result.duplicates > 0 && result.inserted > 0) {
+                // Some duplicates, some inserted
+                Toast.makeText(requireContext(), "Đã đồng bộ " + result.inserted + "/" + result.getTotal() + " lịch. " + result.duplicates + " lịch đã tồn tại.", Toast.LENGTH_SHORT).show();
+            } else {
+                // All inserted successfully
+                Toast.makeText(requireContext(), "Đã xuất lịch thành công. Các sự kiện có thể mất vài phút để hiển thị trên Calendar.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            pendingEvents = new ArrayList<>(events);
+            pendingSyncAll = true;
+            requestCalendarPermission();
+        }
+    }
+
+    private long convertToMillis(String date, String time) {
+        try {
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            java.util.Date d = sdf.parse(date + " " + time);
+            return d != null ? d.getTime() : System.currentTimeMillis();
+        } catch (Exception e) {
+            return System.currentTimeMillis();
+        }
+    }
+
+    private List<CalendarUtils.EventData> pendingEvents;
+    private boolean pendingSyncAll = false;
+
+
+    public void addCalendarEvent(String title, String location, String description,
+                                 String vietnameseDay, String dateStr, String endDateStr,
+                                 long beginTime, long endTime) {
+        // Save event data
+        pendingTitle = title;
+        pendingLocation = location;
+        pendingDescription = description;
+        pendingBeginTime = beginTime;
+        pendingEndTime = endTime;
+        pendingDay = vietnameseDay;
+        pendingDate = dateStr;
+        pendingEndDate = endDateStr;
+        pendingIsExam = false;
+        pendingSyncAll = false;
+
+        if (checkCalendarPermission()) {
+            CalendarUtils.addScheduleEvent(requireContext(), title, location, description,
+                    vietnameseDay, dateStr, endDateStr, beginTime, endTime);
+            Toast.makeText(requireContext(), "Đã xuất lịch thành công. Các sự kiện có thể mất vài giây để hiển thị trên Calendar.", Toast.LENGTH_SHORT).show();
+        } else {
+            requestCalendarPermission();
+        }
+    }
+
+
+    public void addCalendarEvent(String title, String location, String description,
+                                 long beginTime, long endTime, boolean isExam) {
+        pendingTitle = title;
+        pendingLocation = location;
+        pendingDescription = description;
+        pendingBeginTime = beginTime;
+        pendingEndTime = endTime;
+        pendingIsExam = true;
+        pendingSyncAll = false;
+
+        if (checkCalendarPermission()) {
+            CalendarUtils.addExamEvent(requireContext(), title, location, description, beginTime, endTime);
+            Toast.makeText(requireContext(), "Đã xuất lịch thành công. Các sự kiện có thể mất vài giây để hiển thị trên Calendar.", Toast.LENGTH_SHORT).show();
+        } else {
+            requestCalendarPermission();
+        }
+    }
+
+    private boolean checkCalendarPermission() {
+        return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CALENDAR)
+                == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_CALENDAR)
+                        == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestCalendarPermission() {
+        calendarPermissionLauncher.launch(new String[]{
+                Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR
+        });
+    }
+
+    private void executePendingCalendarAction() {
+        if (pendingSyncAll && pendingEvents != null && !pendingEvents.isEmpty()) {
+            CalendarUtils.BatchInsertResult result = CalendarUtils.insertEventsBatch(requireContext(), pendingEvents);
+            
+            // Show appropriate message based on results
+            if (result.duplicates > 0 && result.inserted == 0) {
+                // All events are duplicates
+                Toast.makeText(requireContext(), "Lịch đã tồn tại trong Calendar", Toast.LENGTH_SHORT).show();
+            } else if (result.duplicates > 0 && result.inserted > 0) {
+                // Some duplicates, some inserted
+                Toast.makeText(requireContext(), "Đã đồng bộ " + result.inserted + "/" + result.getTotal() + " lịch. " + result.duplicates + " lịch đã tồn tại.", Toast.LENGTH_SHORT).show();
+            } else {
+                // All inserted successfully
+                Toast.makeText(requireContext(), "Đã xuất lịch thành công. Các sự kiện có thể mất vài phút để hiển thị trên Calendar.", Toast.LENGTH_SHORT).show();
+            }
+            
+            pendingEvents = null;
+            pendingSyncAll = false;
+            return;
+        }
+
+        if (pendingTitle == null) return;
+        try {
+            if (pendingIsExam) {
+                CalendarUtils.addExamEvent(requireContext(), pendingTitle, pendingLocation,
+                        pendingDescription, pendingBeginTime, pendingEndTime);
+            } else {
+                CalendarUtils.addScheduleEvent(requireContext(), pendingTitle, pendingLocation,
+                        pendingDescription, pendingDay, pendingDate, pendingEndDate,
+                        pendingBeginTime, pendingEndTime);
+            }
+            Toast.makeText(requireContext(), "Đã xuất lịch thành công. Các sự kiện có thể mất vài giây để hiển thị trên Calendar.", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error adding calendar event", e);
+            Toast.makeText(requireContext(), "Không thể mở lịch", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateExamHintVisibility() {
@@ -298,7 +561,7 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void loadExamSchedule() {
-        // Should not be called unless all are selected, but check just in case
+        // Don't load unless all three dropdowns are selected
         if (selectedHocKy == -1 || selectedNamHoc == -1 || selectedLanThi == -1) {
             return;
         }
@@ -354,11 +617,14 @@ public class ScheduleFragment extends Fragment {
                                 return a.getExam_date().compareTo(b.getExam_date());
                             });
                             examAdapter.setData(exams);
+                            // Show sync button when exams are loaded
+                            btnSyncAllExams.setVisibility(View.VISIBLE);
                             Log.d(TAG, "Exam schedule loaded successfully: " + exams.size() + " exams" +
                                     (body.isCached() ? " (cached)" : ""));
                         } else {
                             Log.w(TAG, "Exam schedule loaded but data is empty");
                             examAdapter.setData(new ArrayList<>());
+                            btnSyncAllExams.setVisibility(View.GONE);
                             Toast.makeText(requireContext(), "Không có lịch thi cho kỳ này", Toast.LENGTH_SHORT).show();
                         }
                     } else {
@@ -421,9 +687,7 @@ public class ScheduleFragment extends Fragment {
         }
     }
 
-    /**
-     * Determines if an exam is upcoming (exam_date is today or in the future).
-     */
+
     private boolean isUpcoming(String examDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);

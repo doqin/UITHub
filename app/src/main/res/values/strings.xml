@@ -45,6 +45,7 @@
     <string name="saturday">Thứ Bảy</string>
     <string name="period">Tiết</string>
     <string name="reload_schedule">Tải lại thời khóa biểu</string>
+    <string name="sync_all_calendar">Đồng bộ tất cả lịch học</string>
 
     <string name="location_icon">Biểu tượng vị trí</string>
     <string name="bullet">·</string>

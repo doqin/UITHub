@@ -1,10 +1,14 @@
 package com.example.uithub.adapter;
 
+import android.content.Intent;
+import android.provider.CalendarContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -12,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.uithub.R;
 import com.example.uithub.models.ExamModel;
+import com.example.uithub.utils.CalendarUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,7 +26,12 @@ import java.util.TimeZone;
 
 public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapter.ViewHolder> {
 
+    public interface OnExamCalendarSyncListener {
+        void onSync(String title, String location, String description, long beginTime, long endTime);
+    }
+
     private List<ExamModel> list;
+    private OnExamCalendarSyncListener calendarSyncListener;
 
     public ExamScheduleAdapter(List<ExamModel> list) {
         this.list = list;
@@ -30,6 +40,14 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
     public void setData(List<ExamModel> newList) {
         this.list = newList;
         notifyDataSetChanged();
+    }
+
+    public void setOnCalendarSyncListener(OnExamCalendarSyncListener listener) {
+        this.calendarSyncListener = listener;
+    }
+
+    public List<ExamModel> getData() {
+        return list;
     }
 
     @NonNull
@@ -100,7 +118,15 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
             holder.tvDaysRemaining.setVisibility(View.VISIBLE);
         }
     }
-
+    private long convertToMillis(String date, String time) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            Date d = sdf.parse(date + " " + time);
+            return d != null ? d.getTime() : System.currentTimeMillis();
+        } catch (Exception e) {
+            return System.currentTimeMillis();
+        }
+    }
     private int calculateDaysRemaining(String examDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -123,7 +149,6 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvCourseCode, tvClassCode, tvExamShift, tvExamDate, tvExamTime, tvExamRoom, tvExamStatus, tvDaysRemaining;
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCourseCode = itemView.findViewById(R.id.tvCourseCode);
