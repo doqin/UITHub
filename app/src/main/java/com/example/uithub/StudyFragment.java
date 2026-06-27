@@ -67,6 +67,11 @@ public class StudyFragment extends Fragment {
         tvDeadlineEmpty = view.findViewById(R.id.tvDeadlineEmpty);
         deadlineProgressBar = view.findViewById(R.id.deadlineProgressBar);
 
+        // GPA card click -> open GradeDetailActivity
+        view.findViewById(R.id.cardGpa).setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), GradeDetailActivity.class));
+        });
+
         // Tuition card click -> open TuitionActivity
         view.findViewById(R.id.cardTuitionSummary).setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), TuitionActivity.class));

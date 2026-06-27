@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UITHub">
         <activity
+            android:name=".GradeDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".ExamActivity"
             android:exported="false" />
         <activity

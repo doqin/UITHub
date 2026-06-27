@@ -9,6 +9,12 @@ public class GradesSummary {
     @SerializedName("so_tin_chi_tich_luy")
     private double tinChiTichLuy;
 
+    @SerializedName("so_tin_chi_da_hoc")
+    private double soTinChiDaHoc;
+
+    @SerializedName("diem_trung_binh_chung")
+    private double diemTrungBinhChung;
+
     public double getGpaTichLuy() {
         return gpaTichLuy;
     }
@@ -24,4 +30,7 @@ public class GradesSummary {
     public void setTinChiTichLuy(double tinChiTichLuy) {
         this.tinChiTichLuy = tinChiTichLuy;
     }
+
+    public double getSoTinChiDaHoc() { return soTinChiDaHoc; }
+    public double getDiemTrungBinhChung() { return diemTrungBinhChung; }
 }
