@@ -2,6 +2,7 @@ package com.example.uithub;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -42,7 +43,10 @@ public class LoginActivity extends AppCompatActivity {
         preferenceManager = new PreferenceManager(this);
 
         if (preferenceManager.getToken() != null) {
-            startMainActivity();
+            // Defer navigation+finish to avoid TopResumedActivityChangeItem crash
+            // on Android 12+. The system may have queued transaction items for
+            // this activity that must be processed before finish() is called.
+            new Handler().post(this::startMainActivity);
             return;
         }
 

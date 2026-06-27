@@ -27,6 +27,8 @@ public class JSONParser {
             item.time = o.getString("time");
             item.start_time = o.getString("start_time");
             item.end_time = o.getString("end_time");
+            item.start_date = o.optString("start_date", o.optString("date", ""));
+            item.end_date = o.optString("end_date", o.optString("date", ""));
             item.code = o.getString("code");
             item.name = o.getString("name");
             item.room = o.getString("room");

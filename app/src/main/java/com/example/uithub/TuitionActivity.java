@@ -48,19 +48,19 @@ public class TuitionActivity extends BaseActivity {
                         if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                             TuitionResponse tuitionResponse = response.body();
 
-                            // Set student info
+                            // Thiết lập thông tin sinh viên
                             if (tuitionResponse.getStudent() != null) {
                                 tvStudentName.setText(tuitionResponse.getStudent().getName());
                                 tvStudentId.setText("MSSV: " + tuitionResponse.getStudent().getStudentId());
                             }
 
-                            // Set summary
+                            // Thiết lập tổng hợp
                             if (tuitionResponse.getSummary() != null) {
                                 tvTotalPaid.setText(String.format("%,d VNĐ", tuitionResponse.getSummary().getPaid()));
                                 tvRemaining.setText(String.format("%,d VNĐ", tuitionResponse.getSummary().getRemaining()));
                             }
 
-                            // Set semesters list
+                            // Thiết lập danh sách học kỳ
                             List<TuitionItem> semesters = tuitionResponse.getSemesters();
                             if (semesters != null && !semesters.isEmpty()) {
                                 rvTuition.setAdapter(new TuitionAdapter(semesters));

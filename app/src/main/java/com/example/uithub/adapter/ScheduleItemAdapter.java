@@ -1,8 +1,10 @@
 package com.example.uithub.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,7 +18,19 @@ import java.util.List;
 
 public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapter.ViewHolder> {
 
+    public interface OnCalendarSyncListener {
+        void onSync(String title, String location, String description,
+                    String vietnameseDay, String dateStr, String endDateStr,
+                    long beginTime, long endTime);
+    }
+
+    public interface OnCalendarSyncAllListener {
+        void onSyncAll(List<ScheduleItem> items);
+    }
+
     private List<ScheduleItem> list;
+    private OnCalendarSyncListener calendarSyncListener;
+    private OnCalendarSyncAllListener syncAllListener;
 
     public ScheduleItemAdapter(List<ScheduleItem> list) {
         this.list = list;
@@ -25,6 +39,18 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
     public void setData(List<ScheduleItem> newList) {
         this.list = newList;
         notifyDataSetChanged();
+    }
+
+    public void setOnCalendarSyncListener(OnCalendarSyncListener listener) {
+        this.calendarSyncListener = listener;
+    }
+
+    public void setOnCalendarSyncAllListener(OnCalendarSyncAllListener listener) {
+        this.syncAllListener = listener;
+    }
+
+    public List<ScheduleItem> getData() {
+        return list;
     }
 
     @NonNull
@@ -48,6 +74,10 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
         holder.tvInactiveWeek.setVisibility(ScheduleStatusUtils.isOpenThisWeek(item) ? View.GONE : View.VISIBLE);
     }
 
+    private long convertToMillis(String date, String time) {
+        return com.example.uithub.utils.CalendarUtils.convertToMillis(date, time);
+    }
+
     @Override
     public int getItemCount() {
         return list.size();
@@ -56,7 +86,6 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView tvName, tvTime, tvRoom, tvTeacher, tvPeriod, tvStartEndTime, tvInactiveWeek;
-
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -66,7 +95,6 @@ public class ScheduleItemAdapter extends RecyclerView.Adapter<ScheduleItemAdapte
             tvPeriod = itemView.findViewById(R.id.tvPeriod);
             tvStartEndTime = itemView.findViewById(R.id.tvStartEndTime);
             tvInactiveWeek = itemView.findViewById(R.id.tvInactiveWeek);
-
         }
     }
 }

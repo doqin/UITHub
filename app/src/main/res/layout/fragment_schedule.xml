@@ -78,6 +78,16 @@
                     app:tabRippleColor="@android:color/transparent" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSyncAll"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_button"
+                    android:contentDescription="@string/sync_all_calendar"
+                    app:icon="@drawable/ic_add_to_calendar"
+                    app:iconTint="?attr/colorPrimary" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReload"
                     style="@style/Widget.Material3.Button.IconButton"
                     android:layout_width="48dp"
@@ -140,7 +150,7 @@
                         app:boxStrokeWidthFocused="1dp"
                         app:hintEnabled="false">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actHocKy"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -174,7 +184,7 @@
                         app:boxStrokeWidthFocused="1dp"
                         app:hintEnabled="false">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actNamHoc"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -207,7 +217,7 @@
                         app:boxStrokeWidthFocused="1dp"
                         app:hintEnabled="false">
 
-                        <AutoCompleteTextView
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/actLanThi"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -229,6 +239,20 @@
                 android:gravity="center"
                 android:paddingVertical="24dp"
                 android:visibility="gone" />
+
+            <!-- Sync All Exams button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSyncAllExams"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
+                android:text="Đồng bộ tất cả lịch thi"
+                app:icon="@drawable/ic_add_to_calendar"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
 
             <!-- Exam RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
