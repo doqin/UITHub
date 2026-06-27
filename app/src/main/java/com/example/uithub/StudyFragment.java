@@ -15,6 +15,8 @@ import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.models.TuitionItem;
 import com.example.uithub.models.TuitionResponse;
 import com.example.uithub.utils.PreferenceManager;
+import com.example.uithub.models.GradesResponse;
+import com.example.uithub.models.GradesSummary;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -65,6 +67,12 @@ public class StudyFragment extends Fragment {
         tvDeadlineEmpty = view.findViewById(R.id.tvDeadlineEmpty);
         deadlineProgressBar = view.findViewById(R.id.deadlineProgressBar);
 
+        
+        // Nhấp vào thẻ GPA -> mở GradeActivity
+        view.findViewById(R.id.cardGpa).setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), GradeDetailActivity.class));
+        });
+
         // Nhấp vào thẻ học phí -> mở TuitionActivity
         view.findViewById(R.id.cardTuitionSummary).setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), TuitionActivity.class));
@@ -78,6 +86,7 @@ public class StudyFragment extends Fragment {
         // Tải dữ liệu
         loadCachedTuition();
         loadTuitionData();
+        loadGpa();
         loadDeadlines(false);
     }
 
@@ -173,6 +182,32 @@ public class StudyFragment extends Fragment {
         // TODO: Phân tích JSON cache và cập nhật UI
         // Tạm thời chỉ hiển thị trạng thái cache
         tvTuitionUpdated.setText("Đã lưu");
+    }
+
+    private void loadGpa() {
+        String token = preferenceManager.getToken();
+        RetrofitClient.getApiService().getGrades("Bearer " + token, null, null)
+                .enqueue(new Callback<GradesResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<GradesResponse> call, @NonNull Response<GradesResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            if (response.body().getData() != null && response.body().getData().getSummary() != null) {
+                                GradesSummary summary = response.body().getData().getSummary();
+
+                                tvGpaValue.setText(String.format(Locale.getDefault(), "%.2f", summary.getGpaTichLuy()));
+
+                                double tinChi = summary.getTinChiTichLuy();
+                                tvCreditProgress.setText(String.format(Locale.getDefault(), "%.0f TC", tinChi));
+
+                                creditProgressBar.setProgress((int) tinChi);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<GradesResponse> call, @NonNull Throwable t) {
+                    }
+                });
     }
 
     @Override
