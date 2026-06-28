@@ -28,6 +28,15 @@ public class AnnouncementFragment extends Fragment {
         AnnouncementPagerAdapter adapter = new AnnouncementPagerAdapter(this);
         viewPager.setAdapter(adapter);
 
+        view.findViewById(R.id.btnReloadAnnouncements).setOnClickListener(v -> {
+            v.animate().rotationBy(360f).setDuration(500).start();
+            Fragment current = getChildFragmentManager()
+                    .findFragmentByTag("f" + viewPager.getCurrentItem());
+            if (current instanceof AnnouncementListFragment) {
+                ((AnnouncementListFragment) current).reloadFromApi();
+            }
+        });
+
         final String[] tabTitles = {
             getString(R.string.announcement_tab_general),
             getString(R.string.announcement_tab_registration),

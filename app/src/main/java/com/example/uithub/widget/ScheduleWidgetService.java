@@ -75,7 +75,9 @@ class ScheduleWidgetFactory implements RemoteViewsService.RemoteViewsFactory {
         if (position >= todayItems.size()) return null;
 
         ScheduleItem item = todayItems.get(position);
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_schedule_item);
+        com.example.uithub.utils.PreferenceManager pref = new com.example.uithub.utils.PreferenceManager(context);
+        int layoutId = pref.isDarkMode() ? R.layout.widget_schedule_item_dark : R.layout.widget_schedule_item;
+        RemoteViews views = new RemoteViews(context.getPackageName(), layoutId);
 
         views.setTextViewText(R.id.item_name, item.name);
         

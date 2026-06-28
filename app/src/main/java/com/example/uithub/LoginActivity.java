@@ -12,14 +12,21 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.uithub.api.RetrofitClient;
+import com.example.uithub.models.AnnouncementResponse;
+import com.example.uithub.models.DeadlineResponse;
+import com.example.uithub.models.GradesResponse;
 import com.example.uithub.models.LoginRequest;
+import com.example.uithub.models.StudentProfile;
+import com.example.uithub.models.TuitionResponse;
 import com.example.uithub.utils.PreferenceManager;
+import com.google.gson.Gson;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -81,8 +88,6 @@ public class LoginActivity extends AppCompatActivity {
         loginCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                setLoading(false);
-
                 try {
                     String responseData = "";
                     if (response.body() != null) {
@@ -116,16 +121,19 @@ public class LoginActivity extends AppCompatActivity {
                                 preferenceManager.clearCredentials();
                             }
                             Log.d("LoginActivity", "Token saved successfully");
-                            startMainActivity();
+                            refreshCacheAfterLogin(token);
                         } else {
+                            setLoading(false);
                             Toast.makeText(LoginActivity.this, getString(R.string.login_received_empty_token), Toast.LENGTH_SHORT).show();
                         }
                     } else {
+                        setLoading(false);
                         Toast.makeText(LoginActivity.this,
                                 getString(R.string.login_failed_with_code, response.code()),
                                 Toast.LENGTH_SHORT).show();
                     }
                 } catch (IOException e) {
+                    setLoading(false);
                     e.printStackTrace();
                     Toast.makeText(LoginActivity.this, getString(R.string.login_response_error), Toast.LENGTH_SHORT).show();
                 }
@@ -146,6 +154,125 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void refreshCacheAfterLogin(String token) {
+        String authHeader = "Bearer " + token;
+        Gson gson = new Gson();
+        String[] announcementTopics = {null, "ĐKHP", "Schedule", "HP", "Misc"};
+        int totalCalls = 5 + announcementTopics.length;
+        AtomicInteger remaining = new AtomicInteger(totalCalls);
+        Runnable done = () -> {
+            if (remaining.decrementAndGet() == 0) {
+                startMainActivity();
+            }
+        };
+
+        RetrofitClient.getApiService().getSchedule(authHeader).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        preferenceManager.saveScheduleJson(response.body().string());
+                    }
+                } catch (IOException e) {
+                    Log.e("LoginActivity", "Failed to cache schedule", e);
+                } finally {
+                    done.run();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                Log.e("LoginActivity", "Schedule refresh failed", t);
+                done.run();
+            }
+        });
+
+        RetrofitClient.getApiService().getTuition(authHeader, null, null).enqueue(new Callback<TuitionResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<TuitionResponse> call, @NonNull Response<TuitionResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    preferenceManager.saveTuitionJson(gson.toJson(response.body()));
+                }
+                done.run();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<TuitionResponse> call, @NonNull Throwable t) {
+                Log.e("LoginActivity", "Tuition refresh failed", t);
+                done.run();
+            }
+        });
+
+        RetrofitClient.getApiService().getGrades(authHeader, null, null).enqueue(new Callback<GradesResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<GradesResponse> call, @NonNull Response<GradesResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    preferenceManager.saveGradesJson(gson.toJson(response.body()));
+                }
+                done.run();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<GradesResponse> call, @NonNull Throwable t) {
+                Log.e("LoginActivity", "Grades refresh failed", t);
+                done.run();
+            }
+        });
+
+        RetrofitClient.getApiService().getDeadlines(authHeader, null, null, true).enqueue(new Callback<DeadlineResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<DeadlineResponse> call, @NonNull Response<DeadlineResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    preferenceManager.saveDeadlinesJson(gson.toJson(response.body()));
+                }
+                done.run();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<DeadlineResponse> call, @NonNull Throwable t) {
+                Log.e("LoginActivity", "Deadlines refresh failed", t);
+                done.run();
+            }
+        });
+
+        RetrofitClient.getApiService().getProfile(authHeader).enqueue(new Callback<StudentProfile>() {
+            @Override
+            public void onResponse(@NonNull Call<StudentProfile> call, @NonNull Response<StudentProfile> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    preferenceManager.saveProfileJson(gson.toJson(response.body()));
+                    if (response.body().getMssv() != null) {
+                        preferenceManager.saveMssv(response.body().getMssv());
+                    }
+                }
+                done.run();
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<StudentProfile> call, @NonNull Throwable t) {
+                Log.e("LoginActivity", "Profile refresh failed", t);
+                done.run();
+            }
+        });
+
+        for (String topic : announcementTopics) {
+            RetrofitClient.getApiService().getAnnouncements(topic, 0, 15).enqueue(new Callback<AnnouncementResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<AnnouncementResponse> call, @NonNull Response<AnnouncementResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        preferenceManager.saveAnnouncementsJson(topic, gson.toJson(response.body()));
+                    }
+                    done.run();
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<AnnouncementResponse> call, @NonNull Throwable t) {
+                    Log.e("LoginActivity", "Announcements refresh failed", t);
+                    done.run();
+                }
+            });
+        }
     }
 
     private void setLoading(boolean loading) {

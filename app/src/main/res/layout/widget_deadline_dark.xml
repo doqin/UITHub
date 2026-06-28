@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_rounded_background"
+    android:background="@drawable/widget_bg_dark"
     android:orientation="vertical"
     android:padding="8dp">
 
@@ -17,8 +17,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Lịch học hôm nay"
-            android:textColor="@color/foreground"
+            android:text="Hạn chót bài tập"
+            android:textColor="#EEF3F8"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -28,7 +28,7 @@
             android:layout_height="24dp"
             android:src="@android:drawable/ic_popup_sync"
             android:contentDescription="Refresh"
-            android:tint="@color/foreground" />
+            android:tint="#EEF3F8" />
     </LinearLayout>
 
     <ListView
@@ -43,8 +43,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="Không có môn học hôm nay"
-        android:textColor="@color/muted_foreground"
+        android:text="Không có hạn chót nào"
+        android:textColor="#AAB5C4"
         android:textSize="14sp"
         android:visibility="gone" />
 

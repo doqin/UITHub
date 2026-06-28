@@ -64,16 +64,19 @@ public class ProfileFragment extends Fragment {
             tvStudentId.setText("MSSV: " + mssv);
         }
 
-        // Load cached profile first - if available, immediately show content
         boolean cacheLoaded = loadCachedProfile();
         if (cacheLoaded) {
-            // Cache loaded successfully, hide skeleton immediately
+            profileSkeleton.setVisibility(View.GONE);
+            scrollContent.setVisibility(View.VISIBLE);
+        } else {
             profileSkeleton.setVisibility(View.GONE);
             scrollContent.setVisibility(View.VISIBLE);
         }
 
-        // Always fetch from API for fresh data (background refresh)
-        loadProfile();
+        view.findViewById(R.id.btnReloadProfile).setOnClickListener(v -> {
+            v.animate().rotationBy(360f).setDuration(500).start();
+            loadProfile();
+        });
 
         // Toggle profile details
         view.findViewById(R.id.btnProfileInfo).setOnClickListener(v -> {
@@ -94,6 +97,16 @@ public class ProfileFragment extends Fragment {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
+            
+            // Update widgets to reflect new dark mode setting
+            Intent updateScheduleWidget = new Intent(requireContext(), com.example.uithub.widget.ScheduleWidgetProvider.class);
+            updateScheduleWidget.setAction(com.example.uithub.widget.ScheduleWidgetProvider.ACTION_REFRESH);
+            requireContext().sendBroadcast(updateScheduleWidget);
+
+            Intent updateDeadlineWidget = new Intent(requireContext(), com.example.uithub.widget.DeadlineWidgetProvider.class);
+            updateDeadlineWidget.setAction(com.example.uithub.widget.DeadlineWidgetProvider.ACTION_REFRESH);
+            requireContext().sendBroadcast(updateDeadlineWidget);
+
             // Recreate activity to apply theme
             requireActivity().recreate();
         });
@@ -251,8 +264,6 @@ public class ProfileFragment extends Fragment {
             tvLastUpdated.setText("Cập nhật: " + time);
         }
     }
-
-    // Removed profileToJson - using Gson instead
 
     @Override
     public void onDestroyView() {

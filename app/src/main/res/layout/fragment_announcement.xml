@@ -19,8 +19,9 @@
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabLayout"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="1"
             android:background="@drawable/bg_segmented_bar"
             app:tabMode="scrollable"
             app:tabGravity="start"
@@ -32,6 +33,17 @@
             app:tabPaddingStart="8dp"
             app:tabPaddingEnd="8dp"
             app:tabContentStart="18dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReloadAnnouncements"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="@string/reload_announcements"
+            app:icon="@drawable/ic_refresh_24"
+            app:iconTint="?attr/colorPrimary" />
     </LinearLayout>
 
     <LinearLayout

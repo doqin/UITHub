@@ -27,6 +27,7 @@ import com.example.uithub.repository.MainRepository;
 import com.example.uithub.utils.JSONParser;
 import com.example.uithub.utils.PreferenceManager;
 import com.example.uithub.utils.ScheduleStatusUtils;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -96,17 +97,24 @@ public class HomeFragment extends Fragment {
         announcementAdapter = new AnnouncementAdapter(new ArrayList<>());
         announcementsRecyclerView.setAdapter(announcementAdapter);
 
-        // Cache-first: show cached tuition immediately, then refresh in background
         loadCachedTuition();
         loadTodayClasses();
-        loadRecentAnnouncements();
-        loadGpa();
-        refreshTuitionInBackground();
+        loadCachedRecentAnnouncements();
+        loadCachedGpa();
     }
 
     private void loadCachedTuition() {
         String cached = preferenceManager.getTuitionJson();
         if (cached != null && !cached.isEmpty()) {
+            try {
+                TuitionResponse response = new Gson().fromJson(cached, TuitionResponse.class);
+                if (response != null) {
+                    updateTuitionDisplay(response);
+                    return;
+                }
+            } catch (Exception ignored) {
+            }
+
             long timestamp = preferenceManager.getTuitionTimestamp();
             String timeText = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
                     .format(new Date(timestamp));
@@ -164,41 +172,7 @@ public class HomeFragment extends Fragment {
             return;
         }
 
-        String token = preferenceManager.getToken();
-        if (token == null) {
-            showTodayClasses(new ArrayList<>());
-            return;
-        }
-
-        beginLoad();
-        scheduleCall = RetrofitClient.getApiService().getSchedule(token);
-        scheduleCall.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                finishLoad();
-
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String json = response.body().string();
-                        preferenceManager.saveScheduleJson(json);
-                        renderSchedule(json);
-                    } catch (Exception e) {
-                        showTodayClasses(new ArrayList<>());
-                    }
-                } else {
-                    showTodayClasses(new ArrayList<>());
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                finishLoad();
-
-                if (!call.isCanceled() && !renderCachedSchedule()) {
-                    showTodayClasses(new ArrayList<>());
-                }
-            }
-        });
+        showTodayClasses(new ArrayList<>());
     }
 
     private boolean renderCachedSchedule() {
@@ -265,6 +239,44 @@ public class HomeFragment extends Fragment {
 
         announcementAdapter.setData(recent);
         announcementsEmpty.setVisibility(recent.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void loadCachedRecentAnnouncements() {
+        String cached = preferenceManager.getAnnouncementsJson(null);
+        if (cached == null || cached.isEmpty()) {
+            showRecentAnnouncements(new ArrayList<>());
+            return;
+        }
+
+        try {
+            AnnouncementResponse response = new Gson().fromJson(cached, AnnouncementResponse.class);
+            showRecentAnnouncements(response != null ? response.getData() : null);
+        } catch (Exception e) {
+            showRecentAnnouncements(new ArrayList<>());
+        }
+    }
+
+    private void loadCachedGpa() {
+        String cached = preferenceManager.getGradesJson();
+        if (cached == null || cached.isEmpty()) {
+            return;
+        }
+
+        try {
+            GradesResponse response = new Gson().fromJson(cached, GradesResponse.class);
+            updateGpaDisplay(response);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void updateGpaDisplay(GradesResponse response) {
+        if (response == null || response.getData() == null || response.getData().getSummary() == null) {
+            return;
+        }
+
+        GradesSummary summary = response.getData().getSummary();
+        tvHomeGpa.setText(String.format(Locale.getDefault(), "GPA: %.2f", summary.getGpaTichLuy()));
+        tvHomeCredits.setText(String.format(Locale.getDefault(), "Tín chỉ: %.0f", summary.getTinChiTichLuy()));
     }
 
     private void loadGpa() {
