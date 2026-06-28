@@ -29,6 +29,7 @@ public class AnnouncementFragment extends Fragment {
         viewPager.setAdapter(adapter);
 
         view.findViewById(R.id.btnReloadAnnouncements).setOnClickListener(v -> {
+            v.animate().rotationBy(360f).setDuration(500).start();
             Fragment current = getChildFragmentManager()
                     .findFragmentByTag("f" + viewPager.getCurrentItem());
             if (current instanceof AnnouncementListFragment) {

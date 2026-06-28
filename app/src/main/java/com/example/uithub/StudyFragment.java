@@ -78,7 +78,10 @@ public class StudyFragment extends Fragment {
             startActivity(new Intent(requireContext(), TuitionActivity.class));
         });
 
-        view.findViewById(R.id.btnReloadStudy).setOnClickListener(v -> reloadStudyInfo());
+        view.findViewById(R.id.btnReloadStudy).setOnClickListener(v -> {
+            v.animate().rotationBy(360f).setDuration(500).start();
+            reloadStudyInfo();
+        });
 
         deadlineAdapter = new DeadlineAdapter(requireContext(), null);
         rvDeadlines.setAdapter(deadlineAdapter);

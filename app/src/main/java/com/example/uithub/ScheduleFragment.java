@@ -138,6 +138,7 @@ public class ScheduleFragment extends Fragment {
 
         // Refresh button
         btnReload.setOnClickListener(v -> {
+            v.animate().rotationBy(360f).setDuration(500).start();
             Log.d(TAG, "Refresh button clicked, reloading schedule...");
             loadScheduleFromApi(tabLayout, viewPager);
         });

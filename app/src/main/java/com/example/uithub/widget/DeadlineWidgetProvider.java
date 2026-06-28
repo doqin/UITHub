@@ -12,9 +12,9 @@ import android.widget.RemoteViews;
 import com.example.uithub.MainActivity;
 import com.example.uithub.R;
 
-public class ScheduleWidgetProvider extends AppWidgetProvider {
+public class DeadlineWidgetProvider extends AppWidgetProvider {
 
-    public static final String ACTION_REFRESH = "com.example.uithub.widget.ACTION_REFRESH";
+    public static final String ACTION_REFRESH = "com.example.uithub.widget.ACTION_DEADLINE_REFRESH";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -25,7 +25,7 @@ public class ScheduleWidgetProvider extends AppWidgetProvider {
 
     public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         com.example.uithub.utils.PreferenceManager pref = new com.example.uithub.utils.PreferenceManager(context);
-        int layoutId = pref.isDarkMode() ? R.layout.widget_schedule_dark : R.layout.widget_schedule;
+        int layoutId = pref.isDarkMode() ? R.layout.widget_deadline_dark : R.layout.widget_deadline;
         RemoteViews views = new RemoteViews(context.getPackageName(), layoutId);
 
         // Intent to open the app
@@ -34,13 +34,13 @@ public class ScheduleWidgetProvider extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.widget_title, appPendingIntent);
 
         // Intent to refresh widget
-        Intent refreshIntent = new Intent(context, ScheduleWidgetProvider.class);
+        Intent refreshIntent = new Intent(context, DeadlineWidgetProvider.class);
         refreshIntent.setAction(ACTION_REFRESH);
         PendingIntent refreshPendingIntent = PendingIntent.getBroadcast(context, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         views.setOnClickPendingIntent(R.id.widget_refresh, refreshPendingIntent);
 
         // Set up the collection
-        Intent serviceIntent = new Intent(context, ScheduleWidgetService.class);
+        Intent serviceIntent = new Intent(context, DeadlineWidgetService.class);
         serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         serviceIntent.setData(Uri.parse(serviceIntent.toUri(Intent.URI_INTENT_SCHEME)));
         views.setRemoteAdapter(R.id.widget_list, serviceIntent);
@@ -60,7 +60,7 @@ public class ScheduleWidgetProvider extends AppWidgetProvider {
         super.onReceive(context, intent);
         if (ACTION_REFRESH.equals(intent.getAction())) {
             AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-            ComponentName thisWidget = new ComponentName(context, ScheduleWidgetProvider.class);
+            ComponentName thisWidget = new ComponentName(context, DeadlineWidgetProvider.class);
             int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
             onUpdate(context, appWidgetManager, appWidgetIds);
             appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_list);

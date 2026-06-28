@@ -73,7 +73,10 @@ public class ProfileFragment extends Fragment {
             scrollContent.setVisibility(View.VISIBLE);
         }
 
-        view.findViewById(R.id.btnReloadProfile).setOnClickListener(v -> loadProfile());
+        view.findViewById(R.id.btnReloadProfile).setOnClickListener(v -> {
+            v.animate().rotationBy(360f).setDuration(500).start();
+            loadProfile();
+        });
 
         // Toggle profile details
         view.findViewById(R.id.btnProfileInfo).setOnClickListener(v -> {
@@ -94,6 +97,16 @@ public class ProfileFragment extends Fragment {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
+            
+            // Update widgets to reflect new dark mode setting
+            Intent updateScheduleWidget = new Intent(requireContext(), com.example.uithub.widget.ScheduleWidgetProvider.class);
+            updateScheduleWidget.setAction(com.example.uithub.widget.ScheduleWidgetProvider.ACTION_REFRESH);
+            requireContext().sendBroadcast(updateScheduleWidget);
+
+            Intent updateDeadlineWidget = new Intent(requireContext(), com.example.uithub.widget.DeadlineWidgetProvider.class);
+            updateDeadlineWidget.setAction(com.example.uithub.widget.DeadlineWidgetProvider.ACTION_REFRESH);
+            requireContext().sendBroadcast(updateDeadlineWidget);
+
             // Recreate activity to apply theme
             requireActivity().recreate();
         });
@@ -251,8 +264,6 @@ public class ProfileFragment extends Fragment {
             tvLastUpdated.setText("Cập nhật: " + time);
         }
     }
-
-    // Removed profileToJson - using Gson instead
 
     @Override
     public void onDestroyView() {
