@@ -12,6 +12,7 @@ import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.utils.PreferenceManager;
 
 public class BaseActivity extends AppCompatActivity {
+    private boolean sessionExpiredDialogShowing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,9 @@ public class BaseActivity extends AppCompatActivity {
 
     private void handleSessionExpired() {
         if (isFinishing() || isDestroyed()) return;
+        if (sessionExpiredDialogShowing) return;
+
+        sessionExpiredDialogShowing = true;
 
         new AlertDialog.Builder(this)
                 .setTitle("Phiên đăng nhập hết hạn")
@@ -38,13 +42,14 @@ public class BaseActivity extends AppCompatActivity {
                     // this activity that must be processed before finish() is called.
                     new Handler().post(() -> {
                         PreferenceManager pref = new PreferenceManager(BaseActivity.this);
-                        pref.clear();
+                        pref.clearSession();
                         Intent intent = new Intent(BaseActivity.this, LoginActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
                     });
                 })
+                .setOnDismissListener(dialog -> sessionExpiredDialogShowing = false)
                 .show();
     }
 

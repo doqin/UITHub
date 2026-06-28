@@ -225,6 +225,22 @@
                         android:background="?attr/colorOutlineVariant" />
 
                     <TextView
+                        android:id="@+id/btnReloadProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:text="@string/reload_profile"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="16sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="?attr/colorOutlineVariant" />
+
+                    <TextView
                         android:id="@+id/btnLogout"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"

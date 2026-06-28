@@ -132,9 +132,9 @@ public class ScheduleFragment extends Fragment {
         adapter = new SchedulePagerAdapter(this);
         viewPager.setAdapter(adapter);
 
-        // Load cached schedule first, then fetch from API
+        // Load cached schedule first. Refreshing from the API is explicit via the reload button
+        // so cached schedules remain readable after the server-side session expires.
         loadScheduleFromCache(tabLayout, viewPager);
-        loadScheduleFromApi(tabLayout, viewPager);
 
         // Refresh button
         btnReload.setOnClickListener(v -> {

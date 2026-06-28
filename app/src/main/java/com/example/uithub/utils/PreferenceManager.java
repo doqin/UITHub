@@ -13,6 +13,10 @@ public class PreferenceManager {
     private static final String KEY_TUITION_TIMESTAMP = "tuition_timestamp";
     private static final String KEY_PROFILE_JSON = "profile_json";
     private static final String KEY_PROFILE_TIMESTAMP = "profile_timestamp";
+    private static final String KEY_GRADES_JSON = "grades_json";
+    private static final String KEY_DEADLINES_JSON = "deadlines_json";
+    private static final String KEY_ANNOUNCEMENTS_PREFIX = "announcements_json_";
+    private static final String KEY_ANNOUNCEMENT_DETAIL_PREFIX = "announcement_detail_json_";
     private static final String KEY_DARK_MODE = "dark_mode";
     private final SharedPreferences sharedPreferences;
 
@@ -78,6 +82,49 @@ public class PreferenceManager {
         return sharedPreferences.getLong(KEY_PROFILE_TIMESTAMP, 0);
     }
 
+    public void saveGradesJson(String gradesJson) {
+        sharedPreferences.edit().putString(KEY_GRADES_JSON, gradesJson).apply();
+    }
+
+    public String getGradesJson() {
+        return sharedPreferences.getString(KEY_GRADES_JSON, null);
+    }
+
+    public void saveDeadlinesJson(String deadlinesJson) {
+        sharedPreferences.edit().putString(KEY_DEADLINES_JSON, deadlinesJson).apply();
+    }
+
+    public String getDeadlinesJson() {
+        return sharedPreferences.getString(KEY_DEADLINES_JSON, null);
+    }
+
+    public void saveAnnouncementsJson(String topic, String announcementsJson) {
+        sharedPreferences.edit()
+                .putString(KEY_ANNOUNCEMENTS_PREFIX + normalizeCachePart(topic), announcementsJson)
+                .apply();
+    }
+
+    public String getAnnouncementsJson(String topic) {
+        return sharedPreferences.getString(KEY_ANNOUNCEMENTS_PREFIX + normalizeCachePart(topic), null);
+    }
+
+    public void saveAnnouncementDetailJson(String nodeId, String announcementJson) {
+        sharedPreferences.edit()
+                .putString(KEY_ANNOUNCEMENT_DETAIL_PREFIX + normalizeCachePart(nodeId), announcementJson)
+                .apply();
+    }
+
+    public String getAnnouncementDetailJson(String nodeId) {
+        return sharedPreferences.getString(KEY_ANNOUNCEMENT_DETAIL_PREFIX + normalizeCachePart(nodeId), null);
+    }
+
+    private String normalizeCachePart(String value) {
+        if (value == null || value.isEmpty()) {
+            return "all";
+        }
+        return value.replaceAll("[^A-Za-z0-9_\\-]", "_");
+    }
+
     public void saveCredentials(String username, String password) {
         sharedPreferences.edit()
                 .putString("saved_username", username)
@@ -91,6 +138,13 @@ public class PreferenceManager {
                 .remove("saved_username")
                 .remove("saved_password")
                 .putBoolean("remember_me", false)
+                .apply();
+    }
+
+    public void clearSession() {
+        sharedPreferences.edit()
+                .remove(KEY_TOKEN)
+                .remove(KEY_MSSV)
                 .apply();
     }
 

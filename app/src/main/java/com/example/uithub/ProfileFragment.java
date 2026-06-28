@@ -64,16 +64,16 @@ public class ProfileFragment extends Fragment {
             tvStudentId.setText("MSSV: " + mssv);
         }
 
-        // Load cached profile first - if available, immediately show content
         boolean cacheLoaded = loadCachedProfile();
         if (cacheLoaded) {
-            // Cache loaded successfully, hide skeleton immediately
+            profileSkeleton.setVisibility(View.GONE);
+            scrollContent.setVisibility(View.VISIBLE);
+        } else {
             profileSkeleton.setVisibility(View.GONE);
             scrollContent.setVisibility(View.VISIBLE);
         }
 
-        // Always fetch from API for fresh data (background refresh)
-        loadProfile();
+        view.findViewById(R.id.btnReloadProfile).setOnClickListener(v -> loadProfile());
 
         // Toggle profile details
         view.findViewById(R.id.btnProfileInfo).setOnClickListener(v -> {

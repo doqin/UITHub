@@ -187,16 +187,15 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvDeadlineRefresh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="?attr/colorPrimary"
-                    android:text="Làm mới"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:clickable="true"
-                    android:focusable="true"/>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReloadStudy"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_button"
+                    android:contentDescription="@string/reload_study_info"
+                    app:icon="@drawable/ic_refresh_24"
+                    app:iconTint="?attr/colorPrimary" />
             </LinearLayout>
 
             <TextView

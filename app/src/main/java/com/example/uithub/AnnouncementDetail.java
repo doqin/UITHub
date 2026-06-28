@@ -23,6 +23,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.uithub.models.Announcement;
 import com.example.uithub.models.AnnouncementDetailResponse;
 import com.example.uithub.repository.MainRepository;
+import com.example.uithub.utils.PreferenceManager;
+import com.google.gson.Gson;
 import com.google.android.material.button.MaterialButton;
 
 import retrofit2.Call;
@@ -37,6 +39,7 @@ public class AnnouncementDetail extends BaseActivity {
     private ProgressBar spinner;
 
     private MainRepository repository;
+    private PreferenceManager preferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +72,33 @@ public class AnnouncementDetail extends BaseActivity {
         spinner.bringToFront();
 
         repository = new MainRepository();
+        preferenceManager = new PreferenceManager(this);
 
         String nodeId = getIntent().getStringExtra("node_id");
 
         if (nodeId != null) {
-            callAPI(nodeId);
+            if (!loadFromCache(nodeId)) {
+                callAPI(nodeId);
+            }
+        }
+    }
+
+    private boolean loadFromCache(String nodeId) {
+        String cachedJson = preferenceManager.getAnnouncementDetailJson(nodeId);
+        if (cachedJson == null || cachedJson.isEmpty()) {
+            return false;
+        }
+
+        try {
+            Announcement announcement = new Gson().fromJson(cachedJson, Announcement.class);
+            if (announcement == null) {
+                return false;
+            }
+            bindAnnouncement(announcement);
+            return true;
+        } catch (Exception e) {
+            Log.e("API", "Error loading cached announcement detail", e);
+            return false;
         }
     }
 
@@ -92,52 +117,8 @@ public class AnnouncementDetail extends BaseActivity {
 
                         if (response.isSuccessful() && response.body() != null) {
                             Announcement announcement = response.body().getData();
-
-                            Log.d("API", "details: " + announcement.getDetails());
-                            Log.d("API", "content: " + (announcement.getDetails() != null
-                                    ? announcement.getDetails().getContent() : "null"));
-
-                            titleText.setText(announcement.getTitle());
-                            bindArticleLink(announcement.getLink());
-
-                            if (announcement.getDetails() != null) {
-                                contentText.setText(announcement.getDetails().getContent());
-                            }
-
-                            LinearLayout relatedContainer = findViewById(R.id.relatedContainer);
-                            relatedContainer.removeAllViews();
-
-                            if (announcement.getDetails() != null
-                                    && announcement.getDetails().getRelated() != null
-                                    && !announcement.getDetails().getRelated().isEmpty()) {
-
-                                for (Announcement.Related rel : announcement.getDetails().getRelated()) {
-                                    TextView linkView = new TextView(AnnouncementDetail.this);
-                                    linkView.setLayoutParams(new LinearLayout.LayoutParams(
-                                            ViewGroup.LayoutParams.MATCH_PARENT,
-                                            ViewGroup.LayoutParams.WRAP_CONTENT
-                                    ));
-                                    linkView.setText(rel.getTitle());
-                                    linkView.setTextColor(getThemeColor(androidx.appcompat.R.attr.colorPrimary));
-                                    linkView.setTextSize(15f);
-                                    linkView.setPadding(16, 12, 16, 12);
-                                    linkView.setClickable(true);
-                                    linkView.setFocusable(true);
-                                    linkView.setBackgroundResource(android.R.drawable.list_selector_background);
-                                    linkView.setBackgroundTintList(ColorStateList.valueOf(getThemeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)));
-
-                                    linkView.setOnClickListener(v -> {
-                                        if (rel.getLink() != null) {
-                                            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(rel.getLink()));
-                                            startActivity(i);
-                                        }
-                                    });
-
-                                    relatedContainer.addView(linkView);
-                                }
-                            } else {
-                                findViewById(R.id.relatedSection).setVisibility(View.GONE);
-                            }
+                            preferenceManager.saveAnnouncementDetailJson(nodeId, new Gson().toJson(announcement));
+                            bindAnnouncement(announcement);
                         }
                     }
 
@@ -150,6 +131,56 @@ public class AnnouncementDetail extends BaseActivity {
                         Log.e("API", t.getMessage());
                     }
                 });
+    }
+
+    private void bindAnnouncement(Announcement announcement) {
+        Log.d("API", "details: " + announcement.getDetails());
+        Log.d("API", "content: " + (announcement.getDetails() != null
+                ? announcement.getDetails().getContent() : "null"));
+
+        titleText.setText(announcement.getTitle());
+        bindArticleLink(announcement.getLink());
+
+        if (announcement.getDetails() != null) {
+            contentText.setText(announcement.getDetails().getContent());
+        }
+
+        LinearLayout relatedSection = findViewById(R.id.relatedSection);
+        LinearLayout relatedContainer = findViewById(R.id.relatedContainer);
+        relatedContainer.removeAllViews();
+
+        if (announcement.getDetails() != null
+                && announcement.getDetails().getRelated() != null
+                && !announcement.getDetails().getRelated().isEmpty()) {
+            relatedSection.setVisibility(View.VISIBLE);
+
+            for (Announcement.Related rel : announcement.getDetails().getRelated()) {
+                TextView linkView = new TextView(AnnouncementDetail.this);
+                linkView.setLayoutParams(new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
+                linkView.setText(rel.getTitle());
+                linkView.setTextColor(getThemeColor(androidx.appcompat.R.attr.colorPrimary));
+                linkView.setTextSize(15f);
+                linkView.setPadding(16, 12, 16, 12);
+                linkView.setClickable(true);
+                linkView.setFocusable(true);
+                linkView.setBackgroundResource(android.R.drawable.list_selector_background);
+                linkView.setBackgroundTintList(ColorStateList.valueOf(getThemeColor(com.google.android.material.R.attr.colorSurfaceContainerHighest)));
+
+                linkView.setOnClickListener(v -> {
+                    if (rel.getLink() != null) {
+                        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(rel.getLink()));
+                        startActivity(i);
+                    }
+                });
+
+                relatedContainer.addView(linkView);
+            }
+        } else {
+            relatedSection.setVisibility(View.GONE);
+        }
     }
 
     private void bindArticleLink(String link) {

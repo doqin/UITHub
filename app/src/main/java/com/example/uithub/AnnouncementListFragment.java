@@ -15,6 +15,8 @@ import com.example.uithub.adapter.AnnouncementAdapter;
 import com.example.uithub.models.Announcement;
 import com.example.uithub.models.AnnouncementResponse;
 import com.example.uithub.repository.MainRepository;
+import com.example.uithub.utils.PreferenceManager;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +33,13 @@ public class AnnouncementListFragment extends Fragment {
     private RecyclerView recyclerView;
     private AnnouncementAdapter adapter;
     private MainRepository repository;
+    private PreferenceManager preferenceManager;
     private ProgressBar spinner;
 
     private int currentSkip = 0;
     private boolean isLoading = false;
     private boolean hasMore = true;
+    private boolean apiPagingEnabled = false;
     private String currentTopic = null;
 
     public AnnouncementListFragment() {
@@ -66,6 +70,7 @@ public class AnnouncementListFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         repository = new MainRepository();
+        preferenceManager = new PreferenceManager(requireContext());
 
         spinner = view.findViewById(R.id.loadingSpinner);
 
@@ -79,7 +84,7 @@ public class AnnouncementListFragment extends Fragment {
                     int totalItemCount = layoutManager.getItemCount();
                     int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
 
-                    if (!isLoading && hasMore) {
+                    if (apiPagingEnabled && !isLoading && hasMore) {
                         if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
                             callAPI(currentTopic, currentSkip, PAGE_SIZE);
                         }
@@ -88,7 +93,32 @@ public class AnnouncementListFragment extends Fragment {
             }
         });
 
+        loadFromCache();
+    }
+
+    public void reloadFromApi() {
+        currentSkip = 0;
+        hasMore = true;
+        apiPagingEnabled = true;
         callAPI(currentTopic, currentSkip, PAGE_SIZE);
+    }
+
+    private void loadFromCache() {
+        String cachedJson = preferenceManager.getAnnouncementsJson(currentTopic);
+        if (cachedJson == null || cachedJson.isEmpty()) {
+            return;
+        }
+
+        try {
+            AnnouncementResponse response = new Gson().fromJson(cachedJson, AnnouncementResponse.class);
+            List<Announcement> list = response != null ? response.getData() : null;
+            adapter.setData(list);
+            int loadedCount = list != null ? list.size() : 0;
+            currentSkip = loadedCount;
+            hasMore = loadedCount == PAGE_SIZE;
+        } catch (Exception e) {
+            Log.e("AnnouncementList", "Error loading cached announcements", e);
+        }
     }
 
     private void callAPI(String topic, int skip, int limit) {
@@ -104,6 +134,7 @@ public class AnnouncementListFragment extends Fragment {
                         if (response.isSuccessful() && response.body() != null) {
                             List<Announcement> list = response.body().getData();
                             if (skip == 0) {
+                                preferenceManager.saveAnnouncementsJson(topic, new Gson().toJson(response.body()));
                                 adapter.setData(list);
                             } else {
                                 adapter.addData(list);
