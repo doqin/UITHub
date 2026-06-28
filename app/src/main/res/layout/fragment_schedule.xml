@@ -30,7 +30,8 @@
                 android:id="@+id/btnSchedule"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="48dp"
+                android:minHeight="48dp"
                 android:text="@string/schedule_daily"
                 android:textSize="14sp" />
 
@@ -38,7 +39,8 @@
                 android:id="@+id/btnExam"
                 style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="48dp"
+                android:minHeight="48dp"
                 android:text="@string/exam_schedule"
                 android:textSize="14sp" />
 

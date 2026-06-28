@@ -1,14 +1,29 @@
 package com.example.uithub;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.utils.PreferenceManager;
 
 public class BaseActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // Apply dark mode preference before super.onCreate
+        PreferenceManager pref = new PreferenceManager(this);
+        if (pref.isDarkMode()) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+        super.onCreate(savedInstanceState);
+    }
 
     private void handleSessionExpired() {
         if (isFinishing() || isDestroyed()) return;

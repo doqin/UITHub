@@ -1,18 +1,23 @@
 package com.example.uithub;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.uithub.adapter.TuitionAdapter;
 import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.models.TuitionItem;
 import com.example.uithub.models.TuitionResponse;
 import com.example.uithub.utils.PreferenceManager;
+import com.google.android.material.appbar.MaterialToolbar;
+
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,6 +32,14 @@ public class TuitionActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tuition2);
 
+        // Setup toolbar
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         preferenceManager = new PreferenceManager(this);
         rvTuition = findViewById(R.id.rvTuition);
         rvTuition.setLayoutManager(new LinearLayoutManager(this));
@@ -37,6 +50,15 @@ public class TuitionActivity extends BaseActivity {
         tvRemaining = findViewById(R.id.tvRemaining);
 
         fetchTuitionData();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void fetchTuitionData() {

@@ -7,7 +7,8 @@
         <item name="colorAccent">@color/primary</item>
         <item name="android:colorAccent">@color/primary</item>
         <item name="colorControlActivated">@color/primary</item>
-        <item name="android:fontFamily">sans</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:includeFontPadding">true</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:navigationBarColor">@color/surface_container</item>
         <item name="android:statusBarColor">@color/surface</item>

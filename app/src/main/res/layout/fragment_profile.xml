@@ -194,32 +194,30 @@
                         android:layout_height="1dp"
                         android:background="?attr/colorOutlineVariant" />
 
-                    <TextView
-                        android:id="@+id/btnAccount"
+                    <LinearLayout
+                        android:id="@+id/btnDarkMode"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:background="?attr/selectableItemBackground"
                         android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:paddingHorizontal="16dp"
-                        android:text="@string/account_title"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp" />
+                        android:clickable="true"
+                        android:focusable="true">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="?attr/colorOutlineVariant" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Chế độ tối"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp" />
 
-                    <TextView
-                        android:id="@+id/btnSettings"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="?attr/selectableItemBackground"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="16dp"
-                        android:text="@string/settings_title"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp" />
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switchDarkMode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"

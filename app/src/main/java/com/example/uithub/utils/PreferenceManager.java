@@ -13,6 +13,7 @@ public class PreferenceManager {
     private static final String KEY_TUITION_TIMESTAMP = "tuition_timestamp";
     private static final String KEY_PROFILE_JSON = "profile_json";
     private static final String KEY_PROFILE_TIMESTAMP = "profile_timestamp";
+    private static final String KEY_DARK_MODE = "dark_mode";
     private final SharedPreferences sharedPreferences;
 
     public PreferenceManager(Context context) {
@@ -103,6 +104,14 @@ public class PreferenceManager {
 
     public boolean isRememberMe() {
         return sharedPreferences.getBoolean("remember_me", false);
+    }
+
+    public void setDarkMode(boolean isDarkMode) {
+        sharedPreferences.edit().putBoolean(KEY_DARK_MODE, isDarkMode).apply();
+    }
+
+    public boolean isDarkMode() {
+        return sharedPreferences.getBoolean(KEY_DARK_MODE, false);
     }
 
     public void clear() {

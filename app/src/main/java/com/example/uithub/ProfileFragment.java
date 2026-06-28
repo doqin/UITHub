@@ -4,19 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.example.uithub.api.RetrofitClient;
 import com.example.uithub.models.StudentProfile;
 import com.example.uithub.utils.PreferenceManager;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -63,14 +64,16 @@ public class ProfileFragment extends Fragment {
             tvStudentId.setText("MSSV: " + mssv);
         }
 
-        // Load cached profile first
-        if (!loadCachedProfile()) {
-            // If no cache, start loading from API
-            loadProfile();
-        } else {
-            // Cache loaded, also fetch from API for refresh
-            loadProfile();
+        // Load cached profile first - if available, immediately show content
+        boolean cacheLoaded = loadCachedProfile();
+        if (cacheLoaded) {
+            // Cache loaded successfully, hide skeleton immediately
+            profileSkeleton.setVisibility(View.GONE);
+            scrollContent.setVisibility(View.VISIBLE);
         }
+
+        // Always fetch from API for fresh data (background refresh)
+        loadProfile();
 
         // Toggle profile details
         view.findViewById(R.id.btnProfileInfo).setOnClickListener(v -> {
@@ -81,11 +84,19 @@ public class ProfileFragment extends Fragment {
             tvExpandIcon.setRotation(isProfileExpanded ? 180f : 0f);
         });
 
-        view.findViewById(R.id.btnAccount).setOnClickListener(v ->
-                Toast.makeText(getContext(), "Tài khoản", Toast.LENGTH_SHORT).show());
-
-        view.findViewById(R.id.btnSettings).setOnClickListener(v ->
-                Toast.makeText(getContext(), "Cài đặt", Toast.LENGTH_SHORT).show());
+        // Dark mode toggle
+        androidx.appcompat.widget.SwitchCompat switchDarkMode = view.findViewById(R.id.switchDarkMode);
+        switchDarkMode.setChecked(preferenceManager.isDarkMode());
+        switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            preferenceManager.setDarkMode(isChecked);
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+            // Recreate activity to apply theme
+            requireActivity().recreate();
+        });
 
         view.findViewById(R.id.btnLogout).setOnClickListener(v -> {
             preferenceManager.clear();
@@ -117,7 +128,11 @@ public class ProfileFragment extends Fragment {
         String token = preferenceManager.getToken();
         if (token == null) return;
 
-        progressBar.setVisibility(View.VISIBLE);
+        // Only show progress bar if no cached data is showing yet
+        if (!dataLoaded) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
         profileCall = RetrofitClient.getApiService().getProfile("Bearer " + token);
         profileCall.enqueue(new Callback<StudentProfile>() {
             @Override
@@ -127,6 +142,12 @@ public class ProfileFragment extends Fragment {
                     com.google.gson.Gson gson = new com.google.gson.Gson();
                     preferenceManager.saveProfileJson(gson.toJson(response.body()));
                     updateProfileUi(response.body());
+
+                    // If cache wasn't loaded before, show content now
+                    if (!dataLoaded) {
+                        profileSkeleton.setVisibility(View.GONE);
+                        scrollContent.setVisibility(View.VISIBLE);
+                    }
                 } else {
                     // If API fails and we already showed data, keep it
                     if (!dataLoaded) {
@@ -173,7 +194,7 @@ public class ProfileFragment extends Fragment {
             tvStudentId.setText("MSSV: " + profile.getMssv());
         }
         if (profile.getNgaySinh() != null) {
-            tvDob.setText("Ngày sinh: " + profile.getNgaySinh());
+            tvDob.setText("Ngày sinh: " + formatDate(profile.getNgaySinh()));
         }
         if (profile.getGioiTinh() != null) {
             tvGender.setText("Giới tính: " + profile.getGioiTinh());
@@ -195,6 +216,32 @@ public class ProfileFragment extends Fragment {
         }
 
         updateLastUpdatedTime();
+    }
+
+    private String formatDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return "--";
+        // Try parsing common date formats
+        String[] possibleFormats = {
+                "yyyy-MM-dd",
+                "yyyy/MM/dd",
+                "dd/MM/yyyy",
+                "dd-MM-yyyy",
+                "yyyyMMdd"
+        };
+
+        for (String format : possibleFormats) {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+                Date date = sdf.parse(dateStr);
+                if (date != null) {
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
+                    return outputFormat.format(date);
+                }
+            } catch (ParseException ignored) {
+            }
+        }
+        // If parsing fails, return original string
+        return dateStr;
     }
 
     private void updateLastUpdatedTime() {

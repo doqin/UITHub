@@ -1,6 +1,7 @@
 package com.example.uithub;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
@@ -18,6 +19,7 @@ import com.example.uithub.models.GradeSemester;
 import com.example.uithub.models.GradeSubject;
 import com.example.uithub.models.GradesResponse;
 import com.example.uithub.utils.PreferenceManager;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +54,14 @@ public class GradeDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grade_detail);
 
+        // Setup toolbar
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         preferenceManager = new PreferenceManager(this);
 
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
@@ -73,6 +83,15 @@ public class GradeDetailActivity extends BaseActivity {
 
         setupSpinnerListeners();
         fetchGradeData();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupSpinnerListeners() {
