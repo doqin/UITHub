@@ -132,8 +132,10 @@ public class ExamScheduleAdapter extends RecyclerView.Adapter<ExamScheduleAdapte
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
             Date exam = sdf.parse(examDate);
-            // Get current time in local timezone (already Ho Chi Minh time)
-            Date now = new Date();
+
+            // Get today's date at midnight (00:00:00) in Ho Chi Minh time
+            Date now = sdf.parse(sdf.format(new Date()));
+
             long diff = exam.getTime() - now.getTime();
             return (int) (diff / (1000 * 60 * 60 * 24));
         } catch (Exception e) {
